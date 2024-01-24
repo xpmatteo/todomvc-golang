@@ -22,22 +22,29 @@
 				<ul class="todo-list">
 					<!-- These are here just to show the structure of the list items -->
 					<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
-					<li class="completed">
-						<div class="view">
-							<input class="toggle" type="checkbox" checked>
-							<label>Taste JavaScript</label>
-							<button class="destroy"></button>
-						</div>
-						<input class="edit" value="Create a TodoMVC template">
-					</li>
+          
+          {{range $val := .}}
 					<li>
 						<div class="view">
 							<input class="toggle" type="checkbox">
-							<label>Buy a unicorn</label>
+							<label>{{$val.Title}}</label>
 							<button class="destroy"></button>
 						</div>
 						<input class="edit" value="Rule the web">
 					</li>
+          {{end}}
+          
+          
+          <!-- <li class="completed">
+            <div class="view">
+              <input class="toggle" type="checkbox" checked>
+              <label>Taste JavaScript</label>
+              <button class="destroy"></button>
+            </div>
+            <input class="edit" value="Create a TodoMVC template">
+          </li> -->
+          
+          
 				</ul>
 			</section>
 			<!-- This footer should be hidden by default and shown when there are todos -->
@@ -69,7 +76,7 @@
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
 		<!-- Scripts here. Don't remove ↓ -->
-		<script src="js/base.js"></script>
-		<script src="js/app.js"></script>
+    <!-- <script src="js/base.js"></script>
+    <script src="js/app.js"></script> -->
 	</body>
 </html>

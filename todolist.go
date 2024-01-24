@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,15 +10,27 @@ import (
 
 const port = "8080"
 
-var templates = template.Must(template.ParseFiles("index.html"))
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	templates.ExecuteTemplate(w, "index.html", nil)
-	// fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+type todo struct {
+	Title string
+	Done  bool
 }
 
-func cssHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+var todos = []todo{
+	{"ciao", false},
+	{"maramao", true},
+}
+
+var templates = template.Must(template.ParseFiles("index.html"))
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	err := templates.ExecuteTemplate(w, "index.html", todos)
+	check(err)
 }
 
 func main() {
