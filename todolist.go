@@ -3,7 +3,7 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -18,11 +18,15 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
 }
 
+func cssHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+}
+
 func main() {
 	http.HandleFunc("/", indexHandler)
 
-	fs := http.FileServer(http.Dir("./public/css"))
-	http.Handle("/css", fs)
+	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))
+	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./public/js"))))
 
 	log.Println("Listening on port " + port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
