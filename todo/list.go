@@ -32,3 +32,13 @@ func (l *List) Toggle(id int) error {
 	l.Items[id].IsDone = !l.Items[id].IsDone
 	return nil
 }
+
+func (l *List) ItemsLeft() int {
+	result := 0
+	for i := 0; i < len(l.Items); i++ {
+		if !l.Items[i].IsDone {
+			result++
+		}
+	}
+	return result
+}
