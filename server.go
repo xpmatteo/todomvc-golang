@@ -1,11 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"xpug.it/todo"
 )
 
@@ -40,8 +40,13 @@ func newItemHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func toggleHandler(w http.ResponseWriter, r *http.Request) {
-	var itemId int
-	err := json.NewDecoder(r.Body).Decode(&itemId)
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	itemId, err := strconv.Atoi(r.Form.Get("todoItemId"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -52,7 +57,7 @@ func toggleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
-	log.Printf("%s %s %d", r.Method, r.URL, itemId)
+	log.Printf("%s %s %d", r.Method, r.URL, r.Form.Get("todoItemId"))
 }
 
 func main() {
