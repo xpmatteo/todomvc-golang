@@ -1,6 +1,10 @@
 
+watch:
+	air -v || go install github.com/cosmtrek/air@latest
+	air
+
 run:
-	go run todolist.go
+	go run server.go
 
 open:
 	open http://localhost:8080

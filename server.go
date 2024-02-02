@@ -1,22 +1,15 @@
-package todo
+package main
 
 import (
 	"html/template"
 	"log"
 	"net/http"
+	"xpug.it/todo"
 )
 
 const port = "8080"
 
-type todo struct {
-	Title string
-	Done  bool
-}
-
-var todos = []todo{
-	{"ciao", false},
-	{"maramao", true},
-}
+var model = todo.NewList()
 
 var templates = template.Must(template.ParseFiles("templates/index.html"))
 
