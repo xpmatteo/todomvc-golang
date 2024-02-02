@@ -9,15 +9,12 @@ func Test_index(t *testing.T) {
 	assert.Equal(t, 0, len(list.Items))
 }
 
-type Item struct {
-	Title  string
-	IsDone bool
-}
+func Test_NewItem(t *testing.T) {
+	list := NewList()
 
-type List struct {
-	Items []Item
-}
+	list.Add("foobar")
 
-func NewList() List {
-	return List{}
+	assert.Equal(t, 1, len(list.Items))
+	assert.Equal(t, "foobar", list.Items[0].Title)
+	assert.False(t, list.Items[0].IsDone, "new item should not be done")
 }
