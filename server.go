@@ -35,6 +35,10 @@ func newItemHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func toggleHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	}
+
 	err := r.ParseForm()
 	if err != nil {
 		return400(w, err)
@@ -56,6 +60,9 @@ func toggleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	}
 	err := r.ParseForm()
 	if err != nil {
 		return400(w, err)

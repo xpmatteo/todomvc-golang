@@ -6,9 +6,8 @@
 		<title>Golang • TodoMVC</title>
 		<link rel="stylesheet" href="css/base.css">
 		<link rel="stylesheet" href="css/index.css">
-		<!-- CSS overrides - remove if you don't need it -->
-		<link rel="stylesheet" href="css/app.css">
 		<link rel="shortcut icon" href="img/favicon.ico">
+		<script src="js/app.js"></script>
 	</head>
 	<body>
 		<section class="todoapp">
@@ -35,6 +34,7 @@
 						</div>
 						<input id="edit-{{$item.Id}}" onblur="stopEdit({{$item.Id}})" class="edit" value="Rule the web">
 					</li>
+					<script> document.getElementById("edit-{{$item.Id}}").addEventListener("keydown", handleEditKeyDown) </script>
           		{{end}}
 
 				</ul>
@@ -64,9 +64,6 @@
 			<p>Created by <a href="https://matteo.vaccari.name">Matteo Vaccari</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
-		<!-- Scripts here. Don't remove ↓ -->
-    <!-- <script src="js/base.js"></script>
-    <script src="js/app.js"></script> -->
 
 		<form id="toggleForm" action="/toggle" method="post">
 			<input id="toggleFormField" name="todoItemId" type="hidden">
@@ -76,43 +73,4 @@
 			<input id="editFormItemTitle" name="todoItemTitle" type="hidden">
 		</form>
 	</body>
-
-	<script>
-		function invokeToggle(id) {
-			const form =  document.getElementById("toggleForm");
-			const field = document.getElementById("toggleFormField");
-			field.value = id;
-			return form.submit();
-		}
-		
-		function startEdit(id) {
-			console.log("start edit?")
-			const label = document.getElementById("label-" + id)
-			const li = document.getElementById("li-" + id);
-			const edit = document.getElementById("edit-" + id);
-			edit.value = label.textContent;
-			li.classList.add("editing")
-			edit.focus();
-		}
-
-		function invokeEdit(id) {
-			const form =  document.getElementById("editForm");
-			const idField = document.getElementById("editFormItemId");
-			const titleField = document.getElementById("editFormItemTitle");
-			const edit = document.getElementById("edit-" + id);
-			idField.value = id;
-			titleField.value = edit.value
-			return form.submit();
-		}
-
-		function stopEdit(id) {
-			invokeEdit(id)
-			// console.log("stop edit?")
-			// const label = document.getElementById("label-" + id)
-			// const li = document.getElementById("li-" + id);
-			// const edit = document.getElementById("edit-" + id);
-			// label.textContent = edit.value;
-			// li.classList.remove("editing")
-		}
-	</script>
 </html>
