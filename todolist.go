@@ -20,7 +20,7 @@ var todos = []todo{
 	{"maramao", true},
 }
 
-var templates = template.Must(template.ParseFiles("index.html"))
+var templates = template.Must(template.ParseFiles("templates/index.html"))
 
 func check(err error) {
 	if err != nil {
