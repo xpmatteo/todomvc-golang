@@ -60,6 +60,7 @@ func main() {
 	http.HandleFunc("/new-todo", newItemHandler)
 	http.HandleFunc("/toggle", toggleHandler)
 
+	http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./public/img"))))
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./public/js"))))
 
