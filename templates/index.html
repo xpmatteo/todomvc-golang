@@ -16,7 +16,9 @@
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
-				<input class="new-todo" placeholder="What needs to be done?" autofocus>
+				<form action="new-todo" method="post">
+				<input class="new-todo" name="new-todo" placeholder="What needs to be done?" autofocus onchange="this.form.submit()">
+				</form>
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<section class="main">
@@ -26,16 +28,16 @@
 					<!-- These are here just to show the structure of the list items -->
 					<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
 
-          {{range $val := .}}
+          		{{range $item := .Items}}
 					<li>
 						<div class="view">
 							<input class="toggle" type="checkbox">
-							<label>{{$val.Title}}</label>
+							<label>{{$item.Title}}</label>
 							<button class="destroy"></button>
 						</div>
 						<input class="edit" value="Rule the web">
 					</li>
-          {{end}}
+          		{{end}}
 
 
           <!-- <li class="completed">
