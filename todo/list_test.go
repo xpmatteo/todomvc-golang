@@ -26,3 +26,13 @@ func Test_AddItem_Validation(t *testing.T) {
 
 	assert.Equal(t, 0, len(list.Items), "empty items not allowed")
 }
+
+func Test_IDs_sequential(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	list.Add("first")
+	list.Add("second")
+
+	assert.Equal(0, list.Items[0].Id)
+	assert.Equal(1, list.Items[1].Id)
+}

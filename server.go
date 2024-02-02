@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -38,9 +39,21 @@ func newItemHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+func toggleHandler(w http.ResponseWriter, r *http.Request) {
+	var itemId int
+	err := json.NewDecoder(r.Body).Decode(&itemId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+	log.Printf("%s %s %s", r.Method, r.URL, itemId)
+}
+
 func main() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/new-todo", newItemHandler)
+	http.HandleFunc("/toggle", toggleHandler)
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./public/js"))))
