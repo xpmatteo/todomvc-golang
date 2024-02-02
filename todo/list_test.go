@@ -36,3 +36,27 @@ func Test_IDs_sequential(t *testing.T) {
 	assert.Equal(0, list.Items[0].Id)
 	assert.Equal(1, list.Items[1].Id)
 }
+
+func Test_Toggle_OK(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	list.Add("first")
+	list.Add("second")
+	assert.False(list.Items[1].IsDone, "initially")
+
+	_ = list.Toggle(1)
+	assert.True(list.Items[1].IsDone, "after one toggle")
+
+	_ = list.Toggle(1)
+	assert.False(list.Items[1].IsDone, "after another toggle")
+}
+
+func Test_Toggle_error(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	list.Add("first")
+
+	assert.Error(list.Toggle(-1))
+	assert.Error(list.Toggle(1))
+	assert.NoError(list.Toggle(0))
+}

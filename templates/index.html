@@ -31,7 +31,7 @@
           		{{range $item := .Items}}
 					<li>
 						<div class="view">
-							<input class="toggle" type="checkbox" onchange="invokeToggle({{$item.Id}})">
+							<input class="toggle" type="checkbox" {{ if $item.IsDone }} checked {{end}} onchange="invokeToggle({{$item.Id}})">
 							<label>{{$item.Title}}</label>
 							<button class="destroy"></button>
 						</div>

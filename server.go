@@ -46,8 +46,13 @@ func toggleHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	err = model.Toggle(itemId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	http.Redirect(w, r, "/", http.StatusFound)
-	log.Printf("%s %s %s", r.Method, r.URL, itemId)
+	log.Printf("%s %s %d", r.Method, r.URL, itemId)
 }
 
 func main() {
