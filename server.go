@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"html/template"
 	"log"
 	"net/http"
@@ -15,23 +15,18 @@ var model = todo.NewList()
 
 var templates = template.Must(template.ParseFiles("templates/index.html"))
 
-func check(err error) {
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("%s %s", r.Method, r.URL)
+	err := templates.ExecuteTemplate(w, "index.html", &model)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s", r.Method, r.URL)
-	err := templates.ExecuteTemplate(w, "index.html", &model)
-	check(err)
-}
-
 func newItemHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Printf("Error: %s", err)
-		_, _ = fmt.Fprintf(w, "oh no %s", err)
+		return400(w, err)
 		return
 	}
 	log.Printf("%s %s %s", r.Method, r.URL, r.Form)
@@ -42,22 +37,26 @@ func newItemHandler(w http.ResponseWriter, r *http.Request) {
 func toggleHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return400(w, err)
 		return
 	}
+	log.Printf("%s %s %s", r.Method, r.URL, r.Form)
 
 	itemId, err := strconv.Atoi(r.Form.Get("todoItemId"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return400(w, errors.New("not a number"))
 		return
 	}
 	err = model.Toggle(itemId)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return400(w, err)
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
-	log.Printf("%s %s %d", r.Method, r.URL, r.Form.Get("todoItemId"))
+}
+
+func return400(w http.ResponseWriter, err error) {
+	http.Error(w, err.Error(), http.StatusBadRequest)
 }
 
 func main() {
