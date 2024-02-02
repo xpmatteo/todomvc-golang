@@ -42,3 +42,8 @@ func (l *List) ItemsLeft() int {
 	}
 	return result
 }
+
+func (l *List) Edit(id int, title string) error {
+	l.Items[id].Title = title
+	return nil
+}
