@@ -1,6 +1,4 @@
-// //go:build ignore
-
-package main
+package todo
 
 import (
 	"html/template"
