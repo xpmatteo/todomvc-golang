@@ -29,6 +29,7 @@ func check(err error) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("%s %s", r.Method, r.URL)
 	err := templates.ExecuteTemplate(w, "index.html", todos)
 	check(err)
 }
