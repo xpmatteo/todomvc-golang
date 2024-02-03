@@ -18,8 +18,8 @@ type List struct {
 	nextId int
 }
 
-func NewList() List {
-	return List{make(map[ItemId]*Item), 0}
+func NewList() *List {
+	return &List{make(map[ItemId]*Item), 0}
 }
 
 func (l *List) Add(title string) {

@@ -75,11 +75,11 @@ func main() {
 	model.Add("bar")
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
-	http.Handle("/", web.MakeIndexHandler(templ, &model))
+	http.Handle("/", web.MakeIndexHandler(templ, model))
 	http.HandleFunc("/new-todo", newItemHandler)
 	http.HandleFunc("/toggle", toggleHandler)
 	http.HandleFunc("/edit", editHandler)
-	http.Handle("/destroy", web.MakeDestroyHandler(&model))
+	http.Handle("/destroy", web.MakeDestroyHandler(model))
 
 	http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./public/img"))))
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))

@@ -75,7 +75,7 @@ func Test_destroyHamdler_ok(t *testing.T) {
 	model := todo.NewList()
 	model.Add("foo")
 
-	MakeDestroyHandler(&model).ServeHTTP(w, r)
+	MakeDestroyHandler(model).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusSeeOther, w.Code)
 	assert.Equal("/", w.Header().Get("location"))
