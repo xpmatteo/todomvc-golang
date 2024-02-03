@@ -33,7 +33,7 @@ func MakeDestroyHandler(list *todo.List) http.Handler {
 		if err != nil {
 			return
 		}
-		list.Destroy(r.PostForm.Get("todoItemId"))
+		list.Destroy(todo.ItemId(r.PostForm.Get("todoItemId")))
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 }

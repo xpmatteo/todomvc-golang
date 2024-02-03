@@ -35,8 +35,8 @@ func Test_IDs_sequential(t *testing.T) {
 	list.Add("first")
 	list.Add("second")
 
-	assert.Equal("0", list.Items["0"].Id)
-	assert.Equal("1", list.Items["1"].Id)
+	assert.Equal(ItemId("0"), list.Items["0"].Id)
+	assert.Equal(ItemId("1"), list.Items["1"].Id)
 }
 
 func Test_Toggle_OK(t *testing.T) {
