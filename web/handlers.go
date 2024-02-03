@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"xpug.it/todo"
+	"todo"
 )
 
 func MakeIndexHandler(templ *template.Template, model interface{}) http.Handler {

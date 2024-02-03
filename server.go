@@ -4,8 +4,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"xpug.it/todo"
-	"xpug.it/web"
+	"todo"
+	"web"
 )
 
 const port = "8080"

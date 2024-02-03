@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"xpug.it/todo"
+	"todo"
 )
 
 var templ = template.Must(template.New("index").Parse("<p>{{.Model}}</p>"))

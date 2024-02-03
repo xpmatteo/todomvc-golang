@@ -1,13 +1,8 @@
-module xpug.it/web
+module web
 
-go 1.21.5
+go 1.21.6
 
-replace xpug.it/todo => ../todo
-
-require (
-	github.com/stretchr/testify v1.8.4
-	xpug.it/todo v0.0.0-00010101000000-000000000000
-)
+require github.com/stretchr/testify v1.8.4
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
