@@ -82,6 +82,9 @@ func return400(w http.ResponseWriter, err error) {
 }
 
 func main() {
+	model.Add("foo")
+	model.Add("bar")
+
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	http.Handle("/", web.MakeIndexHandler(templ, &model))
 	http.HandleFunc("/new-todo", newItemHandler)

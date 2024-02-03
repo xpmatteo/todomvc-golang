@@ -55,3 +55,13 @@ func Test_indexHandler_editItem(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p>3</p>", w.Body.String())
 }
+
+func Test_indexHandler_editItemNotPassed(t *testing.T) {
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
+	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
+
+	MakeIndexHandler(templ, "foo").ServeHTTP(w, r)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "<p></p>", w.Body.String())
+}

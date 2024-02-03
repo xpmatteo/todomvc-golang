@@ -1,11 +1,14 @@
 package todo
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+)
 
 type Item struct {
 	Title  string
 	IsDone bool
-	Id     int
+	Id     string
 }
 
 type List struct {
@@ -21,7 +24,7 @@ func (l *List) Add(title string) {
 	if len(title) == 0 {
 		return
 	}
-	l.Items = append(l.Items, Item{title, false, l.nextId})
+	l.Items = append(l.Items, Item{title, false, strconv.Itoa(l.nextId)})
 	l.nextId++
 }
 
