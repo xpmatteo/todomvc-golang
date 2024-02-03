@@ -54,7 +54,12 @@ func MakeToggleHandler(list *todo.List) http.Handler {
 		}
 		log.Printf("%s %s %s", r.Method, r.URL, r.Form)
 
-		err = list.Toggle(todo.ItemId(r.Form.Get("todoItemId")))
+		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
+		if err != nil {
+			badRequest(w, err)
+			return
+		}
+		err = list.Toggle(id)
 		if err != nil {
 			badRequest(w, err)
 			return
@@ -76,9 +81,13 @@ func MakeEditHandler(list *todo.List) http.Handler {
 		}
 		log.Printf("%s %s %s", r.Method, r.URL, r.Form)
 
-		itemId := todo.ItemId(r.Form.Get("todoItemId"))
+		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
+		if err != nil {
+			badRequest(w, err)
+			return
+		}
 		title := r.Form.Get("todoItemTitle")
-		err = list.Edit(itemId, title)
+		err = list.Edit(id, title)
 		if err != nil {
 			badRequest(w, err)
 			return
@@ -91,9 +100,15 @@ func MakeDestroyHandler(list *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
+			badRequest(w, err)
 			return
 		}
-		list.Destroy(todo.ItemId(r.PostForm.Get("todoItemId")))
+		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
+		if err != nil {
+			badRequest(w, err)
+			return
+		}
+		list.Destroy(id)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 }
