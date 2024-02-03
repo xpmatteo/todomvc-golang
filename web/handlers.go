@@ -15,7 +15,11 @@ func MakeIndexHandler(templ *template.Template, model interface{}) http.Handler 
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		err := templ.Execute(w, model)
+		data := map[string]interface{}{
+			"Model":         model,
+			"EditingItemId": r.URL.Query().Get("edit"),
+		}
+		err := templ.Execute(w, data)
 		if err != nil {
 			panic(err.Error())
 		}

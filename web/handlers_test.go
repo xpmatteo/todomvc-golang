@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var templ = template.Must(template.New("index").Parse("<p>{{.}}</p>"))
+var templ = template.Must(template.New("index").Parse("<p>{{.Model}}</p>"))
 
 func Test_indexHandler_ok(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
@@ -44,4 +44,14 @@ func Test_indexHandler_unexpectedMethod(t *testing.T) {
 
 	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
 	assert.Equal(t, "Method not allowed\n", w.Body.String())
+}
+
+func Test_indexHandler_editItem(t *testing.T) {
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?edit=3", nil)
+	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
+
+	MakeIndexHandler(templ, "foo").ServeHTTP(w, r)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "<p>3</p>", w.Body.String())
 }
