@@ -5,8 +5,6 @@ import (
 	"strconv"
 )
 
-type ItemId string
-
 type Item struct {
 	Title  string
 	IsDone bool
