@@ -5,7 +5,9 @@ import (
 	"html/template"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"xpug.it/todo"
 )
 
 var templ = template.Must(template.New("index").Parse("<p>{{.Model}}</p>"))
@@ -64,4 +66,18 @@ func Test_indexHandler_editItemNotPassed(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p></p>", w.Body.String())
+}
+
+func Test_destroyHamdler_ok(t *testing.T) {
+	assert := assert.New(t)
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=0"))
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	model := todo.NewList()
+	model.Add("foo")
+
+	MakeDestroyHandler(&model).ServeHTTP(w, r)
+
+	assert.Equal(http.StatusSeeOther, w.Code)
+	assert.Equal("/", w.Header().Get("location"))
+	assert.Equal(0, len(model.Items))
 }

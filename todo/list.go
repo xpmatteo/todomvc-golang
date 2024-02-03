@@ -12,41 +12,51 @@ type Item struct {
 }
 
 type List struct {
-	Items  []Item
+	Items  map[string]*Item
 	nextId int
 }
 
 func NewList() List {
-	return List{}
+	return List{make(map[string]*Item), 0}
 }
 
 func (l *List) Add(title string) {
 	if len(title) == 0 {
 		return
 	}
-	l.Items = append(l.Items, Item{title, false, strconv.Itoa(l.nextId)})
+	newId := strconv.Itoa(l.nextId)
+	l.Items[newId] = &Item{title, false, newId}
 	l.nextId++
 }
 
-func (l *List) Toggle(id int) error {
-	if id < 0 || id >= len(l.Items) {
+func (l *List) Toggle(id string) error {
+	item, ok := l.Items[id]
+	if !ok {
 		return errors.New("bad todo-item ID")
 	}
-	l.Items[id].IsDone = !l.Items[id].IsDone
+	item.IsDone = !item.IsDone
 	return nil
 }
 
 func (l *List) ItemsLeft() int {
 	result := 0
-	for i := 0; i < len(l.Items); i++ {
-		if !l.Items[i].IsDone {
+	for _, item := range l.Items {
+		if !item.IsDone {
 			result++
 		}
 	}
 	return result
 }
 
-func (l *List) Edit(id int, title string) error {
-	l.Items[id].Title = title
+func (l *List) Edit(id string, title string) error {
+	item, ok := l.Items[id]
+	if !ok {
+		return errors.New("bad todo-item ID")
+	}
+	item.Title = title
 	return nil
+}
+
+func (l *List) Destroy(id string) {
+	delete(l.Items, id)
 }

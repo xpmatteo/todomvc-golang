@@ -31,7 +31,7 @@
 						<div class="view">
 							<input class="toggle" type="checkbox" {{ if $item.IsDone }} checked {{ end }} onchange="invokeToggle({{$item.Id}})">
 							<label id="label-{{$item.Id}}" ondblclick="startEdit({{$item.Id}})">{{$item.Title}}</label>
-							<button class="destroy"></button>
+							<button class="destroy" onclick="invokeDestroy({{$item.Id}})"></button>
 						</div>
 						{{if eq $editingItemId $item.Id}}
 						<input id="edit-{{$item.Id}}" onblur="stopEdit({{$item.Id}})" class="edit" value="{{$item.Title}}">
@@ -75,6 +75,9 @@
 
 		<form id="toggleForm" action="/toggle" method="post">
 			<input id="toggleFormField" name="todoItemId" type="hidden">
+		</form>
+		<form id="destroyForm" action="/destroy" method="post">
+			<input id="destroyFormField" name="todoItemId" type="hidden">
 		</form>
 		<form id="editForm" action="/edit" method="post">
 			<input id="editFormItemId" name="todoItemId" type="hidden">

@@ -3,6 +3,7 @@ package web
 import (
 	"html/template"
 	"net/http"
+	"xpug.it/todo"
 )
 
 func MakeIndexHandler(templ *template.Template, model interface{}) http.Handler {
@@ -23,5 +24,16 @@ func MakeIndexHandler(templ *template.Template, model interface{}) http.Handler 
 		if err != nil {
 			panic(err.Error())
 		}
+	})
+}
+
+func MakeDestroyHandler(list *todo.List) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			return
+		}
+		list.Destroy(r.PostForm.Get("todoItemId"))
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 }
