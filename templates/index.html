@@ -27,7 +27,7 @@
 
 				{{ $editingItemId := .EditingItemId }}
           		{{range $item := .Model.Items}}
-					<li id="li-{{$item.Id}}" {{ if $item.IsDone }} class="completed" {{end}} {{if eq $editingItemId $item.Id}} class="editing" {{ end }}>
+					<li id="li-{{$item.Id}}" class="{{ if $item.IsDone }} completed {{end}} {{if eq $editingItemId $item.Id}} editing {{ end }}">
 						<div class="view">
 							<input class="toggle" type="checkbox" {{ if $item.IsDone }} checked {{ end }} onchange="invokeToggle({{$item.Id}})">
 							<label id="label-{{$item.Id}}" ondblclick="startEdit({{$item.Id}})">{{$item.Title}}</label>
