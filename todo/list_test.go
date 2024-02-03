@@ -1,7 +1,9 @@
 package todo
 
-import "testing"
-import "github.com/stretchr/testify/assert"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func Test_index(t *testing.T) {
 	list := NewList()

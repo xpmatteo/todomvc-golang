@@ -7,21 +7,12 @@ import (
 	"net/http"
 	"strconv"
 	"xpug.it/todo"
+	"xpug.it/web"
 )
 
 const port = "8080"
 
 var model = todo.NewList()
-
-var templates = template.Must(template.ParseFiles("templates/index.html"))
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s", r.Method, r.URL)
-	err := templates.ExecuteTemplate(w, "index.html", &model)
-	if err != nil {
-		panic(err)
-	}
-}
 
 func newItemHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
@@ -91,7 +82,8 @@ func return400(w http.ResponseWriter, err error) {
 }
 
 func main() {
-	http.HandleFunc("/", indexHandler)
+	templ := template.Must(template.ParseFiles("templates/index.html"))
+	http.Handle("/", web.MakeIndexHandler(templ, &model))
 	http.HandleFunc("/new-todo", newItemHandler)
 	http.HandleFunc("/toggle", toggleHandler)
 	http.HandleFunc("/edit", editHandler)
