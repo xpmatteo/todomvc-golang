@@ -7,10 +7,6 @@ replace xpug.it/todo => ./todo
 replace xpug.it/web => ./web
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
-	xpug.it/todo v0.0.0-00010101000000-000000000000 // indirect
-	xpug.it/web v0.0.0-00010101000000-000000000000 // indirect
+	xpug.it/todo v0.0.0-00010101000000-000000000000
+	xpug.it/web v0.0.0-00010101000000-000000000000
 )
