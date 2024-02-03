@@ -75,7 +75,7 @@ func main() {
 	model.Add("bar")
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
-	http.Handle("/", web.MakeIndexHandler(templ, model))
+	http.Handle("/", web.Logging(web.MakeIndexHandler(templ, model)))
 	http.HandleFunc("/new-todo", newItemHandler)
 	http.HandleFunc("/toggle", toggleHandler)
 	http.HandleFunc("/edit", editHandler)
