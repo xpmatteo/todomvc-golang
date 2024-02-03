@@ -1,11 +1,9 @@
 package main
 
 import (
-	"errors"
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"xpug.it/todo"
 	"xpug.it/web"
 )
@@ -38,12 +36,7 @@ func toggleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("%s %s %s", r.Method, r.URL, r.Form)
 
-	itemId, err := strconv.Atoi(r.Form.Get("todoItemId"))
-	if err != nil {
-		return400(w, errors.New("not a number"))
-		return
-	}
-	err = model.Toggle(itemId)
+	err = model.Toggle(todo.ItemId(r.Form.Get("todoItemId")))
 	if err != nil {
 		return400(w, err)
 		return
@@ -63,11 +56,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("%s %s %s", r.Method, r.URL, r.Form)
 
-	itemId, err := strconv.Atoi(r.Form.Get("todoItemId"))
-	if err != nil {
-		return400(w, errors.New("not a number"))
-		return
-	}
+	itemId := todo.ItemId(r.Form.Get("todoItemId"))
 	title := r.Form.Get("todoItemTitle")
 	err = model.Edit(itemId, title)
 	if err != nil {
@@ -90,6 +79,7 @@ func main() {
 	http.HandleFunc("/new-todo", newItemHandler)
 	http.HandleFunc("/toggle", toggleHandler)
 	http.HandleFunc("/edit", editHandler)
+	http.Handle("/destroy", web.MakeDestroyHandler(&model))
 
 	http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./public/img"))))
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))

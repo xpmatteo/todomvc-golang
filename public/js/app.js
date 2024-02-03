@@ -1,16 +1,16 @@
 'use strict';
 
-function invokeToggle(id) {
+function invokeToggle(itemId) {
 	const form = document.getElementById("toggleForm");
 	const field = document.getElementById("toggleFormField");
-	field.value = id;
+	field.value = itemId;
 	return form.submit();
 }
 
 function invokeDestroy(itemId) {
 	const form = document.getElementById("destroyForm");
 	const field = document.getElementById("destroyFormField");
-	field.value = id;
+	field.value = itemId;
 	return form.submit();
 }
 
