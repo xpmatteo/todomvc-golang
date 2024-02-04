@@ -62,7 +62,6 @@
 						{{if eq $editingItemId $item.Id}}
 						<!--
 							keyCode 27: escape; abort edit
-							keyCode 13: enter;  submit new text
 						 -->
 						<form action=""
 							  data-hx-get="/"
@@ -73,8 +72,8 @@
 							<input type="hidden" name="todoItemId" value="{{$item.Id}}">
 							<input
 								data-hx-post="/edit"
-								data-hx-trigger="keydown[keyCode==13]"
 								data-hx-target="body"
+								data-hx-params="*"
 								class="edit"
 								name="todoItemTitle"
 								value="{{$item.Title}}"
