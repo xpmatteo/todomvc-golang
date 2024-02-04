@@ -17,11 +17,16 @@
 				<input data-hx-post="/new-todo"
 					   data-hx-target="body"
 					   data-hx-indicator="#new-todo-indicator"
+					   data-hx-disabled-elt="this"
 					   class="new-todo"
 					   name="new-todo"
 					   placeholder="What needs to be done?"
 					   autocomplete="off"
 					{{ if not .EditingItemId }} autofocus {{ end }} >
+				<!--
+					The float:right is lame, I know; I just wanted to add a spinner without disturbing the layout, and
+					the CSS provided by the TodoMVC template is too difficult to understand for me at this time
+				 -->
 				<img style="float:right" class="htmx-indicator" id="new-todo-indicator" src="/img/spinner.gif" alt="">
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
@@ -38,7 +43,14 @@
 						<div class="view">
 							<input class="toggle" type="checkbox" {{ if $item.IsDone }} checked {{ end }} onchange="invokeToggle({{$item.Id}})">
 							<label id="label-{{$item.Id}}" ondblclick="startEdit({{$item.Id}})">{{$item.Title}}</label>
-							<button class="destroy" onclick="invokeDestroy({{$item.Id}})"></button>
+							<form action="">
+								<input type="hidden" name="todoItemId" value="{{$item.Id}}">
+								<button
+									data-hx-post="/destroy"
+									data-hx-target="body"
+									class="destroy"
+								></button>
+							</form>
 						</div>
 						{{if eq $editingItemId $item.Id}}
 						<input id="edit-{{$item.Id}}" onblur="invokeEdit({{$item.Id}})" class="edit" value="{{$item.Title}}">
@@ -82,9 +94,6 @@
 
 		<form id="toggleForm" action="/toggle" method="post">
 			<input id="toggleFormField" name="todoItemId" type="hidden">
-		</form>
-		<form id="destroyForm" action="/destroy" method="post">
-			<input id="destroyFormField" name="todoItemId" type="hidden">
 		</form>
 		<form id="editForm" action="/edit" method="post">
 			<input id="editFormItemId" name="todoItemId" type="hidden">

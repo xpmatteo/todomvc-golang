@@ -7,13 +7,6 @@ function invokeToggle(itemId) {
 	return form.submit();
 }
 
-function invokeDestroy(itemId) {
-	const form = document.getElementById("destroyForm");
-	const field = document.getElementById("destroyFormField");
-	field.value = itemId;
-	return form.submit();
-}
-
 function startEdit(id) {
 	window.location.replace(window.location.pathname + "?edit=" + id)
 }
