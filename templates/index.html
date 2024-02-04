@@ -16,11 +16,13 @@
 				<h1>todos</h1>
 				<input data-hx-post="/new-todo"
 					   data-hx-target="body"
+					   data-hx-indicator="#new-todo-indicator"
 					   class="new-todo"
 					   name="new-todo"
 					   placeholder="What needs to be done?"
 					   autocomplete="off"
 					{{ if not .EditingItemId }} autofocus {{ end }} >
+				<img style="float:right" class="htmx-indicator" id="new-todo-indicator" src="/img/spinner.gif" alt="">
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<section class="main" {{ if not .Model.Items }} hidden {{end}}>

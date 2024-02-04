@@ -18,7 +18,7 @@ func main() {
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	http.Handle("/", web.Logging(web.MakeIndexHandler(templ, model)))
-	http.Handle("/new-todo", web.Logging(web.MakeNewItemHandler(model)))
+	http.Handle("/new-todo", web.Slowdown(1000, web.Logging(web.MakeNewItemHandler(model))))
 	http.Handle("/toggle", web.Logging(web.MakeToggleHandler(model)))
 	http.Handle("/edit", web.Logging(web.MakeEditHandler(model)))
 	http.Handle("/destroy", web.Logging(web.MakeDestroyHandler(model)))

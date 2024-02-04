@@ -3,6 +3,7 @@ package web
 import (
 	"log"
 	"net/http"
+	"time"
 )
 
 func Logging(h http.Handler) http.Handler {
@@ -16,5 +17,12 @@ func Logging(h http.Handler) http.Handler {
 			body = ""
 		}
 		log.Printf("%-4s %s %s", r.Method, r.URL.String(), body)
+	})
+}
+
+func Slowdown(delayMilli int, handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(time.Duration(delayMilli) * time.Millisecond)
+		handler.ServeHTTP(w, r)
 	})
 }
