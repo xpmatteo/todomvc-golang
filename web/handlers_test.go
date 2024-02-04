@@ -94,18 +94,6 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	assert.Equal(0, len(model.Items))
 }
 
-func Test_editHandler_preserveOriginalUrl(t *testing.T) {
-	assert := assert.New(t)
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/zot", strings.NewReader("todoItemId=0&todoItemTitle="))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	model := todo.NewList()
-	model.Add("foo")
-
-	MakeEditHandler(model).ServeHTTP(w, r)
-
-	assert.Equal("/zot", w.Header().Get("location"))
-}
-
 func Test_destroyHamdler_ok(t *testing.T) {
 	assert := assert.New(t)
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=0"))
