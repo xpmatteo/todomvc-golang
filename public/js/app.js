@@ -1,12 +1,5 @@
 'use strict';
 
-function invokeToggle(itemId) {
-	const form = document.getElementById("toggleForm");
-	const field = document.getElementById("toggleFormField");
-	field.value = itemId;
-	return form.submit();
-}
-
 function startEdit(id) {
 	window.location.replace(window.location.pathname + "?edit=" + id)
 }
