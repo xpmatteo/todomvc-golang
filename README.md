@@ -1,7 +1,7 @@
 # GO + Htmx • [TodoMVC](http://todomvc.com)
 
 > Trying to see how the classic SPA TodoMVC could be implemented with traditional server-side-rendered
-> html, and perhaps a sprinkle of Htmx or Turbolinks
+> html, and a sprinkle of Htmx
 
 
 ## Implementation

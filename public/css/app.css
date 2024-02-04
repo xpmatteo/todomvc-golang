@@ -1,8 +1,9 @@
-/*
+.todoapp header {
+	position: relative;
+}
 
-app-template.css overrides
-
-remove this comment if used
-remove this file if not
-
-*/
+#new-todo-indicator {
+	position: absolute;
+	top: 40%;
+	right: 10px;
+}
