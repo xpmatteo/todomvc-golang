@@ -36,14 +36,14 @@ func MakeNewItemHandler(list *todo.List) http.Handler {
 			return
 		}
 		list.Add(r.Form.Get("new-todo"))
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, r.URL.Path, http.StatusFound)
 	})
 }
 
 func MakeToggleHandler(list *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, r.URL.Path, http.StatusTemporaryRedirect)
 			return
 		}
 
@@ -64,14 +64,14 @@ func MakeToggleHandler(list *todo.List) http.Handler {
 			badRequest(w, err)
 			return
 		}
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, r.URL.Path, http.StatusFound)
 	})
 }
 
 func MakeEditHandler(list *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, r.URL.Path, http.StatusTemporaryRedirect)
 			return
 		}
 		err := r.ParseForm()
@@ -87,12 +87,17 @@ func MakeEditHandler(list *todo.List) http.Handler {
 			return
 		}
 		title := r.Form.Get("todoItemTitle")
-		err = list.Edit(id, title)
-		if err != nil {
-			badRequest(w, err)
-			return
+		if len(title) == 0 {
+			list.Destroy(id)
+		} else {
+			err = list.Edit(id, title)
+			if err != nil {
+				badRequest(w, err)
+				return
+			}
 		}
-		http.Redirect(w, r, "/", http.StatusFound)
+
+		http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 	})
 }
 
@@ -109,7 +114,7 @@ func MakeDestroyHandler(list *todo.List) http.Handler {
 			return
 		}
 		list.Destroy(id)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 	})
 }
 
