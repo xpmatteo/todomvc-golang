@@ -8,7 +8,6 @@
 		<link rel="stylesheet" href="css/index.css">
 		<link rel="shortcut icon" href="img/favicon.ico">
 		<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
-		<script src="js/app.js"></script>
 	</head>
 	<body>
 		<section class="todoapp">
@@ -48,7 +47,12 @@
 								type="checkbox"
 								{{ if $item.IsDone }} checked {{ end }}
 							>
-							<label id="label-{{$item.Id}}" ondblclick="startEdit({{$item.Id}})">{{$item.Title}}</label>
+							<label
+								data-hx-get="/?edit={{$item.Id}}"
+								data-hx-trigger="dblclick"
+								data-hx-target="body"
+								id="label-{{$item.Id}}"
+							>{{$item.Title}}</label>
 							<form action="">
 								<input type="hidden" name="todoItemId" value="{{$item.Id}}">
 								<button
@@ -59,13 +63,29 @@
 							</form>
 						</div>
 						{{if eq $editingItemId $item.Id}}
-						<input id="edit-{{$item.Id}}" onblur="invokeEdit({{$item.Id}})" class="edit" value="{{$item.Title}}">
-						<script>
-							const input = document.getElementById("edit-{{$item.Id}}");
-							input.addEventListener("keydown", handleEditKeyDown);
-							input.focus();
-							input.select();
-						</script>
+						<!--
+							keyCode 27: escape; abort edit
+							keyCode 13: enter;  submit new text
+						 -->
+						<form action=""
+							  data-hx-get="/"
+							  data-hx-trigger="keydown[keyCode==27]"
+							  data-hx-target="body"
+							  data-hx-params="none"
+						>
+							<input type="hidden" name="todoItemId" value="{{$item.Id}}">
+							<input
+								data-hx-post="/edit"
+								data-hx-trigger="keydown[keyCode==13]"
+								data-hx-target="body"
+								class="edit"
+								name="todoItemTitle"
+								value="{{$item.Title}}"
+								autofocus
+								onfocus="this.select()"
+								autocomplete="off"
+							>
+						</form>
 						{{end}}
 					</li>
           		{{end}}
@@ -97,10 +117,5 @@
 			<p>Created by <a href="https://matteo.vaccari.name">Matteo Vaccari</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
-
-		<form id="editForm" action="/edit" method="post">
-			<input id="editFormItemId" name="todoItemId" type="hidden">
-			<input id="editFormItemTitle" name="todoItemTitle" type="hidden">
-		</form>
 	</body>
 </html>
