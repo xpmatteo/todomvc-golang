@@ -34,7 +34,7 @@
 							<button class="destroy" onclick="invokeDestroy({{$item.Id}})"></button>
 						</div>
 						{{if eq $editingItemId $item.Id}}
-						<input id="edit-{{$item.Id}}" onblur="stopEdit({{$item.Id}})" class="edit" value="{{$item.Title}}">
+						<input id="edit-{{$item.Id}}" onblur="invokeEdit({{$item.Id}})" class="edit" value="{{$item.Title}}">
 						<script>
 							const input = document.getElementById("edit-{{$item.Id}}");
 							input.addEventListener("keydown", handleEditKeyDown);
