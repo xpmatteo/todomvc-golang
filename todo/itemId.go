@@ -9,11 +9,11 @@ import (
 // This type serves two purposes:
 //   - We want to avoid "prinitive obsession", that is, representing everything with primitive types
 //   - We want to ensure that not any string can be used as an ItemId. This is important, in a web app, for security.
-//     Since we will be building ItemId using strings coming from outside the application, we want to frustrate any
-//     attempt to break the application by supplying inappropriate strings.
+//     Since we will be building ItemId's using strings coming from outside the application, we want to frustrate any
+//     attempts to break the application by supplying inappropriate strings.
 //
 // The exported type is opaque; all you know is that it's something that can be represented as a string.
-// The implementsItemId method is not exported, making it impossible for other packages to create an instance of this
+// The `implementsItemId` method is not exported, making it impossible for other packages to create an instance of this
 // interface
 type ItemId interface {
 	String() string
