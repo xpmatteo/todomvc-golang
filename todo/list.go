@@ -67,3 +67,21 @@ func (l *List) Edit(id ItemId, title string) error {
 func (l *List) Destroy(id ItemId) {
 	delete(l.Items, id)
 }
+
+func (l *List) AllItems() []*Item {
+	result := []*Item{}
+	for _, item := range l.Items {
+		result = append(result, item)
+	}
+	return result
+}
+
+func (l *List) CompletedItems() []*Item {
+	result := []*Item{}
+	for _, item := range l.Items {
+		if item.IsDone {
+			result = append(result, item)
+		}
+	}
+	return result
+}

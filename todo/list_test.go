@@ -108,3 +108,37 @@ func Test_Ids_SurviveAfterDestroy(t *testing.T) {
 
 	assert.NoError(err)
 }
+
+func Test_listAllItems(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	list.Add("zero")
+	list.Add("one")
+	list.Add("two")
+	_ = list.Toggle(MustNewTypeId("1"))
+
+	actual := list.AllItems()
+
+	expected := []*Item{
+		list.Items[MustNewTypeId("0")],
+		list.Items[MustNewTypeId("1")],
+		list.Items[MustNewTypeId("2")],
+	}
+	assert.Equal(expected, actual)
+}
+
+func Test_listCompletedItems(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	list.Add("zero")
+	list.Add("one")
+	list.Add("two")
+	_ = list.Toggle(MustNewTypeId("1"))
+
+	actual := list.CompletedItems()
+
+	expected := []*Item{
+		list.Items[MustNewTypeId("1")],
+	}
+	assert.Equal(expected, actual)
+}
