@@ -1,3 +1,5 @@
+[![Go](https://github.com/xpmatteo/todomvc-golang/actions/workflows/go.yml/badge.svg)](https://github.com/xpmatteo/todomvc-golang/actions/workflows/go.yml)
+
 # GO + Htmx • [TodoMVC](http://todomvc.com)
 
 > Trying to see how the classic single-page-application TodoMVC could be implemented with traditional server-side-rendered
