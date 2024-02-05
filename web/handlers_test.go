@@ -21,6 +21,21 @@ func Test_indexHandler_ok(t *testing.T) {
 	assert.Equal(t, "<p>foo</p>", w.Body.String())
 }
 
+func Test_indexHandler_completed(t *testing.T) {
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?completed", nil)
+	model := todo.NewList()
+	model.Add("foo")
+	model.Add("bar")
+	_ = model.Toggle(todo.MustNewTypeId("1"))
+	templateText := "{{range $item := .Model.Items}} {{$item.Title}} {{ end }}"
+	var templ = template.Must(template.New("index").Parse(templateText))
+
+	MakeIndexHandler(templ, model).ServeHTTP(w, r)
+
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, " bar ", w.Body.String())
+}
+
 func Test_indexHandler_escapesEntities(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
 
