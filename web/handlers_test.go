@@ -79,7 +79,7 @@ func Test_editHandler_ok(t *testing.T) {
 
 	assert.Equal(http.StatusSeeOther, w.Code)
 	assert.Equal("/", w.Header().Get("location"))
-	assert.Equal("bar", model.Items["0"].Title)
+	assert.Equal("bar", model.Items[todo.MustNewTypeId("0")].Title)
 }
 
 func Test_editHandler_textIsEmpty(t *testing.T) {

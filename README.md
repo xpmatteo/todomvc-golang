@@ -30,6 +30,7 @@ Several things are still to be done
   * Routing All/Active/Completed
   * Clear completed
   * Toggle all
+  * Persistence
 
 ## Credit
 
