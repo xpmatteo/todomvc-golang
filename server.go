@@ -18,10 +18,10 @@ func main() {
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	http.Handle("/", web.Logging(web.MakeIndexHandler(templ, model)))
-	http.Handle("/new-todo", web.Slowdown(1000, web.Logging(web.MakeNewItemHandler(model))))
-	http.Handle("/toggle", web.Logging(web.MakeToggleHandler(model)))
-	http.Handle("/edit", web.Logging(web.MakeEditHandler(model)))
-	http.Handle("/destroy", web.Logging(web.MakeDestroyHandler(model)))
+	http.Handle("/new-todo", web.Slowdown(1000, web.Logging(web.MakeNewItemHandler(templ, model))))
+	http.Handle("/toggle", web.Logging(web.MakeToggleHandler(templ, model)))
+	http.Handle("/edit", web.Logging(web.MakeEditHandler(templ, model)))
+	http.Handle("/destroy", web.Logging(web.MakeDestroyHandler(templ, model)))
 
 	http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./public/img"))))
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))

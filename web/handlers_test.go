@@ -74,11 +74,12 @@ func Test_editHandler_ok(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	model := todo.NewList()
 	model.Add("foo")
+	templ := template.Must(template.New("index").Parse("<p>{{len .Model.Items}}</p>"))
 
-	MakeEditHandler(model).ServeHTTP(w, r)
+	MakeEditHandler(templ, model).ServeHTTP(w, r)
 
-	assert.Equal(http.StatusSeeOther, w.Code)
-	assert.Equal("/", w.Header().Get("location"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("<p>1</p>", w.Body.String())
 	assert.Equal("bar", model.Items[todo.MustNewTypeId("0")].Title)
 }
 
@@ -89,21 +90,23 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	model := todo.NewList()
 	model.Add("foo")
 
-	MakeEditHandler(model).ServeHTTP(w, r)
+	MakeEditHandler(templ, model).ServeHTTP(w, r)
 
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("<p>{map[] 1}</p>", w.Body.String())
 	assert.Equal(0, len(model.Items))
 }
 
-func Test_destroyHamdler_ok(t *testing.T) {
+func Test_destroyHandler_ok(t *testing.T) {
 	assert := assert.New(t)
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=0"))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	model := todo.NewList()
 	model.Add("foo")
 
-	MakeDestroyHandler(model).ServeHTTP(w, r)
+	MakeDestroyHandler(templ, model).ServeHTTP(w, r)
 
-	assert.Equal(http.StatusSeeOther, w.Code)
-	assert.Equal("/", w.Header().Get("location"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("<p>{map[] 1}</p>", w.Body.String())
 	assert.Equal(0, len(model.Items))
 }

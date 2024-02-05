@@ -2,7 +2,6 @@ package web
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 	"todo"
 )
@@ -17,31 +16,25 @@ func MakeIndexHandler(templ *template.Template, model interface{}) http.Handler 
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		data := map[string]interface{}{
-			"Model":         model,
-			"EditingItemId": r.URL.Query().Get("edit"),
-		}
-		err := templ.Execute(w, data)
-		if err != nil {
-			http.Error(w, "Error rendering template", http.StatusInternalServerError)
-			return
-		}
+		data := makeDataForTemplate(model, r)
+		executeTemplate(w, templ, data)
 	})
 }
 
-func MakeNewItemHandler(list *todo.List) http.Handler {
+func MakeNewItemHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			badRequest(w, err)
 			return
 		}
-		list.Add(r.Form.Get("new-todo"))
-		http.Redirect(w, r, "/", http.StatusFound)
+		model.Add(r.Form.Get("new-todo"))
+		data := makeDataForTemplate(model, r)
+		executeTemplate(w, templ, data)
 	})
 }
 
-func MakeToggleHandler(list *todo.List) http.Handler {
+func MakeToggleHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -53,23 +46,24 @@ func MakeToggleHandler(list *todo.List) http.Handler {
 			badRequest(w, err)
 			return
 		}
-		log.Printf("%s %s %s", r.Method, r.URL, r.Form)
 
 		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
 		if err != nil {
 			badRequest(w, err)
 			return
 		}
-		err = list.Toggle(id)
+		err = model.Toggle(id)
 		if err != nil {
 			badRequest(w, err)
 			return
 		}
-		http.Redirect(w, r, "/", http.StatusFound)
+
+		data := makeDataForTemplate(model, r)
+		executeTemplate(w, templ, data)
 	})
 }
 
-func MakeEditHandler(list *todo.List) http.Handler {
+func MakeEditHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -80,7 +74,6 @@ func MakeEditHandler(list *todo.List) http.Handler {
 			badRequest(w, err)
 			return
 		}
-		log.Printf("%s %s %s", r.Method, r.URL, r.Form)
 
 		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
 		if err != nil {
@@ -89,20 +82,21 @@ func MakeEditHandler(list *todo.List) http.Handler {
 		}
 		title := r.Form.Get("todoItemTitle")
 		if len(title) == 0 {
-			list.Destroy(id)
+			model.Destroy(id)
 		} else {
-			err = list.Edit(id, title)
+			err = model.Edit(id, title)
 			if err != nil {
 				badRequest(w, err)
 				return
 			}
 		}
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		data := makeDataForTemplate(model, r)
+		executeTemplate(w, templ, data)
 	})
 }
 
-func MakeDestroyHandler(list *todo.List) http.Handler {
+func MakeDestroyHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -114,11 +108,28 @@ func MakeDestroyHandler(list *todo.List) http.Handler {
 			badRequest(w, err)
 			return
 		}
-		list.Destroy(id)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		model.Destroy(id)
+
+		data := makeDataForTemplate(model, r)
+		executeTemplate(w, templ, data)
 	})
 }
 
 func badRequest(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), http.StatusBadRequest)
+}
+
+func makeDataForTemplate(model interface{}, r *http.Request) map[string]interface{} {
+	return map[string]interface{}{
+		"Model":         model,
+		"EditingItemId": r.URL.Query().Get("edit"),
+	}
+}
+
+func executeTemplate(w http.ResponseWriter, templ *template.Template, data map[string]interface{}) {
+	err := templ.Execute(w, data)
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
