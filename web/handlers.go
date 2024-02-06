@@ -121,17 +121,28 @@ func badRequest(w http.ResponseWriter, err error) {
 
 func makeDataForTemplate(model *todo.List, r *http.Request) map[string]interface{} {
 	items := model.AllItems()
-	if r.URL.Path == "/completed" {
+	path := determinePath(r)
+	if path == "/completed" {
 		items = model.CompletedItems()
-	} else if r.URL.Path == "/active" {
+	} else if path == "/active" {
 		items = model.ActiveItems()
 	}
 	return map[string]interface{}{
 		"Items":         items,
 		"Model":         model,
-		"Path":          r.URL.Path,
+		"Path":          path,
 		"EditingItemId": r.URL.Query().Get("edit"),
 	}
+}
+
+func determinePath(r *http.Request) string {
+	path := r.URL.Path
+	_ = r.ParseForm()
+	pathFromForm := r.Form.Get("Path")
+	if pathFromForm != "" {
+		path = pathFromForm
+	}
+	return path
 }
 
 func executeTemplate(w http.ResponseWriter, templ *template.Template, data map[string]interface{}) {

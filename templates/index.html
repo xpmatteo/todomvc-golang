@@ -10,7 +10,8 @@
 		<link rel="shortcut icon" href="img/favicon.ico">
 		<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 	</head>
-	<body>
+	<!-- The hx-vals annotation is like a hidden field that sends back the Path information with each request -->
+	<body data-hx-vals='{"Path": "{{.Path}}"}'>
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
@@ -95,13 +96,25 @@
 				<!-- Remove this if you don't implement routing -->
 				<ul class="filters">
 					<li>
-						<a {{ if eq .Path "/" }} class="selected" {{ end }} href="/">All</a>
+						<a
+							href="/"
+{{/*							data-hx-push-url="true"*/}}
+							{{ if eq .Path "/" }} class="selected" {{ end }}
+						>All</a>
 					</li>
 					<li>
-						<a {{ if eq .Path "/active" }} class="selected" {{ end }} href="/active">Active</a>
+						<a
+							href="/active"
+{{/*							data-hx-push-url="true"*/}}
+							{{ if eq .Path "/active" }} class="selected" {{ end }}
+						>Active</a>
 					</li>
 					<li>
-						<a {{ if eq .Path "/completed" }} class="selected" {{ end }} href="/completed">Completed</a>
+						<a
+							href="/completed"
+{{/*							data-hx-push-url="true"*/}}
+							{{ if eq .Path "/completed" }} class="selected" {{ end }}
+						>Completed</a>
 					</li>
 				</ul>
 				<!-- Hidden if no completed items are left ↓ -->

@@ -14,7 +14,8 @@ var model = todo.NewList()
 
 func main() {
 	model.Add("foo")
-	model.Add("bar")
+	model.AddCompleted("bar")
+	model.Add("baz")
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	http.Handle("/", web.Logging(web.MakeIndexHandler(templ, model)))
