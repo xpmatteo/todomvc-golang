@@ -113,9 +113,8 @@ func Test_listAllItems(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()
 	list.Add("zero")
-	list.Add("one")
+	list.AddCompleted("one")
 	list.Add("two")
-	_ = list.Toggle(MustNewItemId("1"))
 
 	actual := list.AllItems()
 
@@ -131,9 +130,8 @@ func Test_listCompletedItems(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()
 	list.Add("zero")
-	list.Add("one")
+	list.AddCompleted("one")
 	list.Add("two")
-	_ = list.Toggle(MustNewItemId("1"))
 
 	actual := list.CompletedItems()
 
@@ -141,4 +139,33 @@ func Test_listCompletedItems(t *testing.T) {
 		list.Items[MustNewItemId("1")],
 	}
 	assert.Equal(expected, actual)
+}
+
+func Test_listMethodsPreserveInsertionOrder(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	list.Add("zero")
+	list.AddCompleted("one")
+	list.Add("two")
+	list.Add("three")
+	list.Add("four")
+
+	expected := []*Item{
+		list.Items[MustNewItemId("0")],
+		list.Items[MustNewItemId("1")],
+		list.Items[MustNewItemId("2")],
+		list.Items[MustNewItemId("3")],
+		list.Items[MustNewItemId("4")],
+	}
+	assert.Equal(expected, list.AllItems())
+
+	list.Destroy(MustNewItemId("2"))
+
+	remaining := []*Item{
+		list.Items[MustNewItemId("0")],
+		list.Items[MustNewItemId("1")],
+		list.Items[MustNewItemId("3")],
+		list.Items[MustNewItemId("4")],
+	}
+	assert.Equal(remaining, list.AllItems())
 }
