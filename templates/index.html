@@ -23,7 +23,7 @@
 					   placeholder="What needs to be done?"
 					   autocomplete="off"
 					{{ if not .EditingItemId }} autofocus {{ end }} >
-				<img class="htmx-indicator" id="new-todo-indicator" src="/img/spinner.gif" alt="">
+				<img class="htmx-indicator" id="new-todo-indicator" src="/img/bars-rotate-fade.svg" alt="">
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<section class="main" {{ if not .Items }} hidden {{end}}>
