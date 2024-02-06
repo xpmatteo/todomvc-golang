@@ -10,4 +10,5 @@ open:
 	open http://localhost:8080
 
 test:
-	go test todo web
+	go test ./...
+	

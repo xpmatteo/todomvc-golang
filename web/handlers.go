@@ -1,9 +1,9 @@
 package web
 
 import (
+	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"net/http"
-	"todo"
 )
 
 func MakeIndexHandler(templ *template.Template, model *todo.List) http.Handler {

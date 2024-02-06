@@ -2,12 +2,12 @@ package web
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"todo"
 )
 
 var templ = template.Must(template.New("index").Parse("<p>{{.Items}}</p>"))

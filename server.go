@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/xpmatteo/todomvc-golang/todo"
+	"github.com/xpmatteo/todomvc-golang/web"
 	"html/template"
 	"log"
 	"net/http"
-	"todo"
-	"web"
 )
 
 const port = "8080"
