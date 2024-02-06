@@ -27,7 +27,7 @@
 				<img class="htmx-indicator" id="new-todo-indicator" src="/img/bars-rotate-fade.svg" alt="">
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
-			<section class="main" {{ if not .Items }} hidden {{end}}>
+			<section class="main" {{ if not .ItemsCount }} hidden {{end}}>
 				<input id="toggle-all" class="toggle-all" type="checkbox">
 				<label for="toggle-all">Mark all as complete</label>
 				<ul class="todo-list">
@@ -90,7 +90,7 @@
 				</ul>
 			</section>
 			<!-- This footer should be hidden by default and shown when there are todos -->
-			<footer class="footer" {{ if not .Items }} hidden {{ end }}>
+			<footer class="footer" {{ if not .ItemsCount }} hidden {{ end }}>
 				<!-- This should be `0 items left` by default -->
 				<span class="todo-count"><strong>{{ .Model.ItemsLeft }}</strong> items left</span>
 				<!-- Remove this if you don't implement routing -->

@@ -131,6 +131,7 @@ func makeDataForTemplate(model *todo.List, r *http.Request) map[string]interface
 		"Items":         items,
 		"Model":         model,
 		"Path":          path,
+		"ItemsCount":    len(model.Items),
 		"EditingItemId": r.URL.Query().Get("edit"),
 	}
 }

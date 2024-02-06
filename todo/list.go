@@ -11,6 +11,10 @@ type Item struct {
 	Id     ItemId
 }
 
+func (item Item) String() string {
+	return "Item"
+}
+
 type List struct {
 	Items  map[ItemId]*Item
 	nextId int

@@ -110,16 +110,12 @@ func Test_destroyHandler_ok(t *testing.T) {
 	assert.Equal(0, len(model.Items))
 }
 
-func Test_generateModel(t *testing.T) {
-
-}
-
-func Test_makeDataForTheTemplate(t *testing.T) {
+func Test_dataForTheTemplate_items(t *testing.T) {
 	model := todo.NewList()
 	model.Add("zero")
 	model.AddCompleted("one")
 
-	tests := []struct {
+	cases := []struct {
 		name          string
 		url           string
 		expectedItems []*todo.Item
@@ -128,10 +124,20 @@ func Test_makeDataForTheTemplate(t *testing.T) {
 		{"active", "/active", []*todo.Item{model.Items[idZero]}},
 		{"complete", "/completed", []*todo.Item{model.Items[idOne]}},
 	}
-	for _, test := range tests {
+	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 			data := makeDataForTemplate(model, httptest.NewRequest(http.MethodGet, test.url, nil))
 			assert.Equal(t, test.expectedItems, data["Items"])
 		})
 	}
+}
+
+func Test_dataForTheTemplate_ItemsCount(t *testing.T) {
+	model := todo.NewList()
+	model.Add("zero")
+	model.AddCompleted("one")
+
+	data := makeDataForTemplate(model, httptest.NewRequest(http.MethodGet, "/completed", nil))
+
+	assert.Equal(t, 2, data["ItemsCount"])
 }

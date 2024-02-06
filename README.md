@@ -20,6 +20,8 @@ The HTML is all rendered server-side.
 
 Several things are still to be done
 
+* Bugs
+  * Order of items is not always preserved
 * UX
   * Add indicators to all operations
   * Disable elements while an operation is in progress
