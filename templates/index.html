@@ -26,14 +26,14 @@
 				<img class="htmx-indicator" id="new-todo-indicator" src="/img/spinner.gif" alt="">
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
-			<section class="main" {{ if not .Model.Items }} hidden {{end}}>
+			<section class="main" {{ if not .Items }} hidden {{end}}>
 				<input id="toggle-all" class="toggle-all" type="checkbox">
 				<label for="toggle-all">Mark all as complete</label>
 				<ul class="todo-list">
 
 				<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
 				{{ $editingItemId := .EditingItemId }}
-          		{{range $item := .Model.Items}}
+          		{{range $item := .Items}}
 					<li id="li-{{$item.Id}}" class="{{ if $item.IsDone }} completed {{end}} {{if eq $editingItemId $item.Id}} editing {{ end }}">
 						<div class="view">
 							<input
@@ -89,19 +89,19 @@
 				</ul>
 			</section>
 			<!-- This footer should be hidden by default and shown when there are todos -->
-			<footer class="footer" {{ if not .Model.Items }} hidden {{ end }}>
+			<footer class="footer" {{ if not .Items }} hidden {{ end }}>
 				<!-- This should be `0 items left` by default -->
 				<span class="todo-count"><strong>{{ .Model.ItemsLeft }}</strong> items left</span>
 				<!-- Remove this if you don't implement routing -->
 				<ul class="filters">
 					<li>
-						<a class="selected" href="#/">All</a>
+						<a {{ if eq .Path "/" }} class="selected" {{ end }} href="/">All</a>
 					</li>
 					<li>
-						<a href="#/active">Active</a>
+						<a {{ if eq .Path "/active" }} class="selected" {{ end }} href="/active">Active</a>
 					</li>
 					<li>
-						<a href="#/completed">Completed</a>
+						<a {{ if eq .Path "/completed" }} class="selected" {{ end }} href="/completed">Completed</a>
 					</li>
 				</ul>
 				<!-- Hidden if no completed items are left ↓ -->

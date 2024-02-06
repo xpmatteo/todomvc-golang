@@ -46,7 +46,7 @@ func NewItemId(s string) (ItemId, error) {
 	return itemId(s), nil
 }
 
-func MustNewTypeId(s string) ItemId {
+func MustNewItemId(s string) ItemId {
 	id, err := NewItemId(s)
 	if err != nil {
 		panic(err.Error())

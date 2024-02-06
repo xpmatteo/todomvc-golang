@@ -20,20 +20,22 @@ func NewList() *List {
 	return &List{make(map[ItemId]*Item), 0}
 }
 
-func (l *List) Add(title string) {
+func (l *List) Add(title string) ItemId {
 	if len(title) == 0 {
-		return
+		return nil
 	}
-	newId := must(NewItemId(strconv.Itoa(l.nextId)))
+	newId := MustNewItemId(strconv.Itoa(l.nextId))
 	l.Items[newId] = &Item{title, false, newId}
 	l.nextId++
+	return newId
 }
 
-func must(id ItemId, err error) ItemId {
-	if err != nil {
-		panic(err.Error())
+func (l *List) AddCompleted(title string) ItemId {
+	newId := l.Add(title)
+	if newId != nil {
+		_ = l.Toggle(newId)
 	}
-	return id
+	return newId
 }
 
 func (l *List) Toggle(id ItemId) error {
@@ -80,6 +82,16 @@ func (l *List) CompletedItems() []*Item {
 	result := []*Item{}
 	for _, item := range l.Items {
 		if item.IsDone {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
+func (l *List) ActiveItems() []*Item {
+	result := []*Item{}
+	for _, item := range l.Items {
+		if !item.IsDone {
 			result = append(result, item)
 		}
 	}

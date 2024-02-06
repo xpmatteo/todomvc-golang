@@ -6,9 +6,9 @@ import (
 	"todo"
 )
 
-func MakeIndexHandler(templ *template.Template, model interface{}) http.Handler {
+func MakeIndexHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
+		if r.URL.Path != "/" && r.URL.Path != "/active" && r.URL.Path != "/completed" {
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
@@ -119,9 +119,17 @@ func badRequest(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), http.StatusBadRequest)
 }
 
-func makeDataForTemplate(model interface{}, r *http.Request) map[string]interface{} {
+func makeDataForTemplate(model *todo.List, r *http.Request) map[string]interface{} {
+	items := model.AllItems()
+	if r.URL.Path == "/completed" {
+		items = model.CompletedItems()
+	} else if r.URL.Path == "/active" {
+		items = model.ActiveItems()
+	}
 	return map[string]interface{}{
+		"Items":         items,
 		"Model":         model,
+		"Path":          r.URL.Path,
 		"EditingItemId": r.URL.Query().Get("edit"),
 	}
 }
