@@ -18,11 +18,17 @@ func main() {
 	model.Add("baz")
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
-	web.GET("/", web.Logging(web.MakeIndexHandler(templ, model)))
-	web.POST("/new-todo", web.Slowdown(1000, web.Logging(web.MakeNewItemHandler(templ, model))))
-	web.POST("/toggle", web.Logging(web.MakeToggleHandler(templ, model)))
-	web.POST("/edit", web.Logging(web.MakeEditHandler(templ, model)))
-	web.POST("/destroy", web.Logging(web.MakeDestroyHandler(templ, model)))
+	web.GET("/",
+		web.Logging(web.IndexHandler(templ, model)))
+	web.POST("/new-todo",
+		web.Slowdown(1000,
+			web.Logging(web.NewItemHandler(templ, model))))
+	web.POST("/toggle",
+		web.Logging(web.ToggleHandler(templ, model)))
+	web.POST("/edit",
+		web.Logging(web.EditHandler(templ, model)))
+	web.POST("/destroy",
+		web.Logging(web.DestroyHandler(templ, model)))
 
 	web.GET("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./public/img"))))
 	web.GET("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))

@@ -13,7 +13,7 @@ const (
 	keyTodoItemTitle = "todoItemTitle"
 )
 
-func MakeIndexHandler(templ *template.Template, model *todo.List) http.Handler {
+func IndexHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && r.URL.Path != pathActive && r.URL.Path != pathCompleted {
 			http.Error(w, "Not found", http.StatusNotFound)
@@ -24,7 +24,7 @@ func MakeIndexHandler(templ *template.Template, model *todo.List) http.Handler {
 	})
 }
 
-func MakeNewItemHandler(templ *template.Template, model *todo.List) http.Handler {
+func NewItemHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -37,7 +37,7 @@ func MakeNewItemHandler(templ *template.Template, model *todo.List) http.Handler
 	})
 }
 
-func MakeToggleHandler(templ *template.Template, model *todo.List) http.Handler {
+func ToggleHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -61,7 +61,7 @@ func MakeToggleHandler(templ *template.Template, model *todo.List) http.Handler 
 	})
 }
 
-func MakeEditHandler(templ *template.Template, model *todo.List) http.Handler {
+func EditHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -90,7 +90,7 @@ func MakeEditHandler(templ *template.Template, model *todo.List) http.Handler {
 	})
 }
 
-func MakeDestroyHandler(templ *template.Template, model *todo.List) http.Handler {
+func DestroyHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {

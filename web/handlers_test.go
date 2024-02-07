@@ -23,7 +23,7 @@ var aModel = todo.NewList()
 func Test_indexHandler_ok(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
 
-	MakeIndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, aModel).ServeHTTP(w, r)
 
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "<p>[]</p>", w.Body.String())
@@ -32,7 +32,7 @@ func Test_indexHandler_ok(t *testing.T) {
 func Test_indexHandler_unexpectedPath(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/foo", nil)
 
-	MakeIndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, aModel).ServeHTTP(w, r)
 
 	assert.Equal(t, 404, w.Code)
 	assert.Equal(t, "Not found\n", w.Body.String())
@@ -42,7 +42,7 @@ func Test_indexHandler_editItem(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?edit=3", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
 
-	MakeIndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, aModel).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p>3</p>", w.Body.String())
@@ -52,7 +52,7 @@ func Test_indexHandler_editItemNotPassed(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
 
-	MakeIndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, aModel).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p></p>", w.Body.String())
@@ -66,7 +66,7 @@ func Test_editHandler_ok(t *testing.T) {
 	model.Add("foo")
 	templ := template.Must(template.New("index").Parse("<p>{{len .Items}}</p>"))
 
-	MakeEditHandler(templ, model).ServeHTTP(w, r)
+	EditHandler(templ, model).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("<p>1</p>", w.Body.String())
@@ -80,7 +80,7 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	model := todo.NewList()
 	model.Add("foo")
 
-	MakeEditHandler(templ, model).ServeHTTP(w, r)
+	EditHandler(templ, model).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("<p>[]</p>", w.Body.String())
@@ -94,7 +94,7 @@ func Test_destroyHandler_ok(t *testing.T) {
 	model := todo.NewList()
 	model.Add("foo")
 
-	MakeDestroyHandler(templ, model).ServeHTTP(w, r)
+	DestroyHandler(templ, model).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("<p>[]</p>", w.Body.String())
