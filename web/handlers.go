@@ -39,11 +39,6 @@ func MakeNewItemHandler(templ *template.Template, model *todo.List) http.Handler
 
 func MakeToggleHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-			return
-		}
-
 		err := r.ParseForm()
 		if err != nil {
 			badRequest(w, err)
@@ -68,10 +63,6 @@ func MakeToggleHandler(templ *template.Template, model *todo.List) http.Handler 
 
 func MakeEditHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-			return
-		}
 		err := r.ParseForm()
 		if err != nil {
 			badRequest(w, err)
