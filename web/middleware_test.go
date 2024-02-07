@@ -10,7 +10,7 @@ import (
 func Test_GET_rejectsPostRequests(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", nil)
 
-	GET(nil).ServeHTTP(w, r)
+	GETonly(nil).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
 }
@@ -21,7 +21,7 @@ func Test_GET_acceptsGetRequests(t *testing.T) {
 		_, _ = w.Write([]byte("OK"))
 	})
 
-	GET(h).ServeHTTP(w, r)
+	GETonly(h).ServeHTTP(w, r)
 
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "OK", w.Body.String())
