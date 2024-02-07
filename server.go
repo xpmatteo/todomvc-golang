@@ -18,7 +18,7 @@ func main() {
 	model.Add("baz")
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
-	http.Handle("/", web.Logging(web.MakeIndexHandler(templ, model)))
+	http.Handle("/", web.Logging(web.GET(web.MakeIndexHandler(templ, model))))
 	http.Handle("/new-todo", web.Slowdown(1000, web.Logging(web.MakeNewItemHandler(templ, model))))
 	http.Handle("/toggle", web.Logging(web.MakeToggleHandler(templ, model)))
 	http.Handle("/edit", web.Logging(web.MakeEditHandler(templ, model)))

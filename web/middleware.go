@@ -6,6 +6,16 @@ import (
 	"time"
 )
 
+func GET(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		} else {
+			h.ServeHTTP(w, r)
+		}
+	})
+}
+
 func Logging(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h.ServeHTTP(w, r)

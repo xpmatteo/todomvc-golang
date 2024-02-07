@@ -38,15 +38,6 @@ func Test_indexHandler_unexpectedPath(t *testing.T) {
 	assert.Equal(t, "Not found\n", w.Body.String())
 }
 
-func Test_indexHandler_unexpectedMethod(t *testing.T) {
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", nil)
-
-	MakeIndexHandler(templ, aModel).ServeHTTP(w, r)
-
-	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
-	assert.Equal(t, "Method not allowed\n", w.Body.String())
-}
-
 func Test_indexHandler_editItem(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?edit=3", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))

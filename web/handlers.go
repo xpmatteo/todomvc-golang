@@ -19,10 +19,6 @@ func MakeIndexHandler(templ *template.Template, model *todo.List) http.Handler {
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
 		data := viewModel(model, r)
 		executeTemplate(w, templ, data)
 	})
