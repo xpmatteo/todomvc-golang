@@ -6,7 +6,9 @@ import (
 	"net/http"
 )
 
-func viewModel(model *todo.List, r *http.Request) map[string]interface{} {
+type ViewModel map[string]interface{}
+
+func viewModel(model *todo.List, r *http.Request) ViewModel {
 	items := model.AllItems()
 	path := determinePath(r)
 	if path == pathCompleted {
@@ -14,7 +16,7 @@ func viewModel(model *todo.List, r *http.Request) map[string]interface{} {
 	} else if path == pathActive {
 		items = model.ActiveItems()
 	}
-	return map[string]interface{}{
+	return ViewModel{
 		"Items":            items,
 		"Path":             path,
 		"ItemsCount":       len(model.Items),

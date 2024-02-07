@@ -19,8 +19,8 @@ func MakeIndexHandler(templ *template.Template, model *todo.List) http.Handler {
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
-		data := viewModel(model, r)
-		executeTemplate(w, templ, data)
+		vm := viewModel(model, r)
+		render(w, r, templ, vm)
 	})
 }
 
@@ -32,8 +32,8 @@ func MakeNewItemHandler(templ *template.Template, model *todo.List) http.Handler
 			return
 		}
 		model.Add(r.Form.Get("new-todo"))
-		data := viewModel(model, r)
-		executeTemplate(w, templ, data)
+		vm := viewModel(model, r)
+		render(w, r, templ, vm)
 	})
 }
 
@@ -61,8 +61,8 @@ func MakeToggleHandler(templ *template.Template, model *todo.List) http.Handler 
 			return
 		}
 
-		data := viewModel(model, r)
-		executeTemplate(w, templ, data)
+		vm := viewModel(model, r)
+		render(w, r, templ, vm)
 	})
 }
 
@@ -94,8 +94,8 @@ func MakeEditHandler(templ *template.Template, model *todo.List) http.Handler {
 			}
 		}
 
-		data := viewModel(model, r)
-		executeTemplate(w, templ, data)
+		vm := viewModel(model, r)
+		render(w, r, templ, vm)
 	})
 }
 
@@ -113,19 +113,11 @@ func MakeDestroyHandler(templ *template.Template, model *todo.List) http.Handler
 		}
 		model.Destroy(id)
 
-		data := viewModel(model, r)
-		executeTemplate(w, templ, data)
+		vm := viewModel(model, r)
+		render(w, r, templ, vm)
 	})
 }
 
 func badRequest(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), http.StatusBadRequest)
-}
-
-func executeTemplate(w http.ResponseWriter, templ *template.Template, data map[string]interface{}) {
-	err := templ.Execute(w, data)
-	if err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
-		return
-	}
 }
