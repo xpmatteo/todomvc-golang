@@ -18,13 +18,12 @@ The HTML is all rendered server-side.
 
 ## What's missing?
 
-Several things are still to be done
+Still to be done:
 
 * UX
   * Add indicators to all operations
   * Disable elements while an operation is in progress
 * TodoMVC
-  * Routing All/Active/Completed
   * Clear completed
   * Toggle all
   * Persistence

@@ -73,7 +73,7 @@ func Test_editHandler_ok(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	model := todo.NewList()
 	model.Add("foo")
-	templ := template.Must(template.New("index").Parse("<p>{{len .Model.Items}}</p>"))
+	templ := template.Must(template.New("index").Parse("<p>{{len .Items}}</p>"))
 
 	MakeEditHandler(templ, model).ServeHTTP(w, r)
 
@@ -140,4 +140,22 @@ func Test_dataForTheTemplate_ItemsCount(t *testing.T) {
 	data := makeDataForTemplate(model, httptest.NewRequest(http.MethodGet, "/completed", nil))
 
 	assert.Equal(t, 2, data["ItemsCount"])
+}
+
+func Test_dataForTheTemplate_itemsLeftLabel(t *testing.T) {
+	assert := assert.New(t)
+	list := todo.NewList()
+	list.Add("zero")
+	list.Add("one")
+
+	data := makeDataForTemplate(list, httptest.NewRequest(http.MethodGet, "/", nil))
+	assert.Equal("2 items left", data["ItemsLeft"])
+
+	_ = list.Toggle(idZero)
+	data = makeDataForTemplate(list, httptest.NewRequest(http.MethodGet, "/", nil))
+	assert.Equal("1 item left", data["ItemsLeft"])
+
+	_ = list.Toggle(idOne)
+	data = makeDataForTemplate(list, httptest.NewRequest(http.MethodGet, "/", nil))
+	assert.Equal("0 items left", data["ItemsLeft"])
 }

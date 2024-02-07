@@ -52,16 +52,6 @@ func (l *List) Toggle(id ItemId) error {
 	return nil
 }
 
-func (l *List) ItemsLeft() int {
-	result := 0
-	for _, item := range l.Items {
-		if !item.IsDone {
-			result++
-		}
-	}
-	return result
-}
-
 func (l *List) Edit(id ItemId, title string) error {
 	item, ok := l.Items[id]
 	if !ok {

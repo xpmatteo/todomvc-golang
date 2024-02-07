@@ -62,28 +62,6 @@ func Test_Toggle_error(t *testing.T) {
 	assert.NoError(list.Toggle(MustNewItemId("0")))
 }
 
-func Test_CountItemsLeft(t *testing.T) {
-	assert := assert.New(t)
-	list := NewList()
-	list.Add("zero")
-	list.Add("one")
-	list.Add("two")
-
-	assert.Equal(3, list.ItemsLeft())
-}
-
-func Test_CountItemsLeft_countsOnlyNotDone(t *testing.T) {
-	assert := assert.New(t)
-	list := NewList()
-	list.Add("zero")
-	list.Add("one")
-	list.Add("two")
-
-	_ = list.Toggle(MustNewItemId("1"))
-
-	assert.Equal(2, list.ItemsLeft())
-}
-
 func Test_Destroy(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()

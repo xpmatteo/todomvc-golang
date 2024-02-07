@@ -1,14 +1,22 @@
 package web
 
 import (
+	"fmt"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"net/http"
 )
 
+const (
+	pathActive       = "/active"
+	pathCompleted    = "/completed"
+	keyTodoItemId    = "todoItemId"
+	keyTodoItemTitle = "todoItemTitle"
+)
+
 func MakeIndexHandler(templ *template.Template, model *todo.List) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" && r.URL.Path != "/active" && r.URL.Path != "/completed" {
+		if r.URL.Path != "/" && r.URL.Path != pathActive && r.URL.Path != pathCompleted {
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
@@ -47,7 +55,7 @@ func MakeToggleHandler(templ *template.Template, model *todo.List) http.Handler 
 			return
 		}
 
-		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
+		id, err := todo.NewItemId(r.Form.Get(keyTodoItemId))
 		if err != nil {
 			badRequest(w, err)
 			return
@@ -75,12 +83,12 @@ func MakeEditHandler(templ *template.Template, model *todo.List) http.Handler {
 			return
 		}
 
-		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
+		id, err := todo.NewItemId(r.Form.Get(keyTodoItemId))
 		if err != nil {
 			badRequest(w, err)
 			return
 		}
-		title := r.Form.Get("todoItemTitle")
+		title := r.Form.Get(keyTodoItemTitle)
 		if len(title) == 0 {
 			model.Destroy(id)
 		} else {
@@ -103,7 +111,7 @@ func MakeDestroyHandler(templ *template.Template, model *todo.List) http.Handler
 			badRequest(w, err)
 			return
 		}
-		id, err := todo.NewItemId(r.Form.Get("todoItemId"))
+		id, err := todo.NewItemId(r.Form.Get(keyTodoItemId))
 		if err != nil {
 			badRequest(w, err)
 			return
@@ -122,18 +130,27 @@ func badRequest(w http.ResponseWriter, err error) {
 func makeDataForTemplate(model *todo.List, r *http.Request) map[string]interface{} {
 	items := model.AllItems()
 	path := determinePath(r)
-	if path == "/completed" {
+	if path == pathCompleted {
 		items = model.CompletedItems()
-	} else if path == "/active" {
+	} else if path == pathActive {
 		items = model.ActiveItems()
 	}
 	return map[string]interface{}{
-		"Items":         items,
-		"Model":         model,
-		"Path":          path,
-		"ItemsCount":    len(model.Items),
-		"EditingItemId": r.URL.Query().Get("edit"),
+		"Items":            items,
+		"Path":             path,
+		"ItemsCount":       len(model.Items),
+		"NoCompletedItems": len(model.CompletedItems()) == 0,
+		"ItemsLeft":        itemsLeft(model),
+		"EditingItemId":    r.URL.Query().Get("edit"),
 	}
+}
+
+func itemsLeft(model *todo.List) string {
+	count := len(model.ActiveItems())
+	if count == 1 {
+		return "1 item left"
+	}
+	return fmt.Sprintf("%d items left", count)
 }
 
 func determinePath(r *http.Request) string {
