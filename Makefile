@@ -11,4 +11,6 @@ open:
 
 test:
 	go test ./...
-	
+
+e2e:
+	e2e/node_modules/.bin/mocha testGolangHtmx.js --no-timeouts --reporter spec --browser=phantomjs
