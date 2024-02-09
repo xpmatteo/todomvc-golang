@@ -33,10 +33,6 @@ func GET(pattern string, handler http.Handler) {
 	http.Handle(pattern, GETonly(handler))
 }
 
-func POST(pattern string, handler http.Handler) {
-	http.Handle(pattern, POSTonly(handler))
-}
-
 func Logging(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h.ServeHTTP(w, r)

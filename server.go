@@ -19,21 +19,32 @@ func main() {
 	model.Add("baz")
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
-	web.GET("/",
+	http.Handle("/",
 		web.Metrics("index",
-			web.Logging(web.IndexHandler(templ, model))))
-	web.POST("/new-todo",
+			web.Logging(
+				web.GETonly(
+					web.IndexHandler(templ, model)))))
+	http.Handle("/new-todo",
 		web.Metrics("new-todo",
-			web.Slowdown(1000,
-				web.Logging(web.NewItemHandler(templ, model)))))
-	web.POST("/toggle",
+			web.Logging(
+				web.POSTonly(
+					web.Slowdown(1000,
+						web.NewItemHandler(templ, model))))))
+	http.Handle("/toggle",
 		web.Metrics("toggle",
 			web.Logging(
-				web.ToggleHandler(templ, model))))
-	web.POST("/edit",
-		web.Logging(web.EditHandler(templ, model)))
-	web.POST("/destroy",
-		web.Logging(web.DestroyHandler(templ, model)))
+				web.POSTonly(
+					web.ToggleHandler(templ, model)))))
+	http.Handle("/edit",
+		web.Metrics("edit",
+			web.Logging(
+				web.POSTonly(
+					web.EditHandler(templ, model)))))
+	http.Handle("/destroy",
+		web.Metrics("destroy",
+			web.Logging(
+				web.POSTonly(
+					web.DestroyHandler(templ, model)))))
 
 	http.Handle("/metrics", promhttp.Handler())
 
