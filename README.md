@@ -9,12 +9,20 @@
 ## Implementation
 
 Almost no JavaScript!  Thanks to [htmx](https://htmx.org/), we can mimic the weird ways that editing operations are
-triggered in the JavaScript SPA using only the attributes of htmx.  The body of the page is replaced at every request, 
+triggered in the JavaScript SPA using only the attributes of htmx.  The body of the page is replaced at every request,
 with no full page reloads.
 
 The server is written in [Go](https://go.dev/), a language that I'm in the process of learning.
 
 The HTML is all rendered server-side.
+
+Interesting features
+ * For any request, you can receive the response in Json by using the "accept: application/json" request header
+ * Publishes Prometheus metrics
+ * Graceful shutdown
+ * If you request /active you will receive a full page; if you click on the corresponding button, it will just reload
+   the body through an ajax request
+
 
 ## What's missing?
 
@@ -27,6 +35,7 @@ Still to be done:
   * Clear completed
   * Toggle all
   * Persistence
+* Make static assets cacheable by the client
 
 ## Credit
 

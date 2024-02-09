@@ -53,5 +53,5 @@ func main() {
 	web.GET("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./public/js"))))
 
 	log.Println("Listening on port " + port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	web.GracefulListenAndServe(":"+port, nil)
 }
