@@ -1,6 +1,9 @@
 package web
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 	"time"
@@ -53,4 +56,28 @@ func Slowdown(delayMilli int, handler http.Handler) http.Handler {
 		time.Sleep(time.Duration(delayMilli) * time.Millisecond)
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func Metrics(handlerName string, handler http.Handler) http.Handler {
+	reg := prometheus.WrapRegistererWith(prometheus.Labels{"handler": handlerName}, prometheus.DefaultRegisterer)
+
+	totalOpts := prometheus.CounterOpts{
+		Name: "http_requests_total",
+		Help: "Tracks the number of HTTP requests.",
+	}
+	requestsTotal := promauto.With(reg).NewCounterVec(totalOpts, []string{"method", "code"})
+
+	const bucketStart = 0.1
+	const bucketFactor = 1.5
+	const bucketsCount = 5
+	durationOpts := prometheus.HistogramOpts{
+		Name:    "http_request_duration_seconds",
+		Help:    "Tracks the latencies for HTTP requests.",
+		Buckets: prometheus.ExponentialBuckets(bucketStart, bucketFactor, bucketsCount),
+	}
+	requestDuration := promauto.With(reg).NewHistogramVec(durationOpts, []string{"method", "code"})
+
+	return promhttp.InstrumentHandlerCounter(requestsTotal,
+		promhttp.InstrumentHandlerDuration(requestDuration,
+			handler))
 }
