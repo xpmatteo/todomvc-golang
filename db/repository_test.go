@@ -89,6 +89,25 @@ func Test_findAll(t *testing.T) {
 	assert.Equal(id1, all[1].Id)
 }
 
+func Test_destroy_ok(t *testing.T) {
+	assert := assert.New(t)
+	db := initTestDb()
+	repo := NewTodoRepository(db)
+	id0, err := repo.Save(todo.Item{Title: "first", IsDone: false})
+	require.NoError(t, err)
+	id1, err := repo.Save(todo.Item{Title: "second", IsDone: true})
+	require.NoError(t, err)
+
+	err = repo.Destroy(id1)
+	require.NoError(t, err)
+
+	list, err := repo.FindList()
+	require.NoError(t, err)
+
+	assert.Equal(1, len(list.Items))
+	assert.Equal("first", list.Items[id0].Title)
+}
+
 //goland:noinspection SqlNoDataSourceInspection
 func initTestDb() *sql.DB {
 	db, err := sql.Open("sqlite", "test.db")

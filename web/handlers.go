@@ -3,6 +3,7 @@ package web
 import (
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -17,6 +18,10 @@ type ListFinder interface {
 	FindList() (*todo.List, error)
 }
 
+type Destroyer interface {
+	Destroy(id todo.ItemId) error
+}
+
 func IndexHandler(templ *template.Template, repo ListFinder) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && r.URL.Path != pathActive && r.URL.Path != pathCompleted {
@@ -25,7 +30,7 @@ func IndexHandler(templ *template.Template, repo ListFinder) http.Handler {
 		}
 		model, err := repo.FindList()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			internalServerError(w, err)
 			return
 		}
 		print(model.Items)
@@ -100,7 +105,7 @@ func EditHandler(templ *template.Template, model *todo.List) http.Handler {
 	})
 }
 
-func DestroyHandler(templ *template.Template, model *todo.List) http.Handler {
+func DestroyHandler(templ *template.Template, finder ListFinder, destroyer Destroyer) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -112,11 +117,25 @@ func DestroyHandler(templ *template.Template, model *todo.List) http.Handler {
 			badRequest(w, err)
 			return
 		}
-		model.Destroy(id)
 
+		if err := destroyer.Destroy(id); err != nil {
+			internalServerError(w, err)
+			return
+		}
+
+		model, err := finder.FindList()
+		if err != nil {
+			internalServerError(w, err)
+			return
+		}
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
+}
+
+func internalServerError(w http.ResponseWriter, err error) {
+	log.Printf("Finder: %s", err.Error())
+	http.Error(w, "Internal server error", http.StatusInternalServerError)
 }
 
 func badRequest(w http.ResponseWriter, err error) {

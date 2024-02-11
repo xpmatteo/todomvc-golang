@@ -57,7 +57,7 @@ func main() {
 		web.Metrics("destroy",
 			web.Logging(
 				web.POSTonly(
-					web.DestroyHandler(templ, model)))))
+					web.DestroyHandler(templ, repository, repository)))))
 
 	http.Handle("/metrics", promhttp.Handler())
 

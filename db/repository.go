@@ -20,6 +20,7 @@ type TodoRepository interface {
 	Find(todo.ItemId) (*todo.Item, bool, error)
 	Save(item todo.Item) (todo.ItemId, error)
 	FindList() (*todo.List, error)
+	Destroy(id todo.ItemId) error
 }
 
 type todoRepository struct {
@@ -124,4 +125,11 @@ values (?, ?)`
 		return nil, err
 	}
 	return newId, nil
+}
+
+//goland:noinspection SqlNoDataSourceInspection
+func (t todoRepository) Destroy(id todo.ItemId) error {
+	destroySql := `delete from todo_items where id = ?`
+	_, err := t.db.Exec(destroySql, id)
+	return err
 }

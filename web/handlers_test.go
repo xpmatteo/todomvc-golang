@@ -97,16 +97,25 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	assert.Equal(0, len(model.Items))
 }
 
+type DestroyerMock struct {
+	ids []todo.ItemId
+}
+
+func (d *DestroyerMock) Destroy(id todo.ItemId) error {
+	d.ids = append(d.ids, id)
+	return nil
+}
+
 func Test_destroyHandler_ok(t *testing.T) {
 	assert := assert.New(t)
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=0"))
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=123"))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	model := todo.NewList()
-	model.Add("foo")
+	testFinder := ListFinderStub{todo.NewList()}
+	destroyer := &DestroyerMock{}
 
-	DestroyHandler(templ, model).ServeHTTP(w, r)
+	DestroyHandler(templ, testFinder, destroyer).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("<p>[]</p>", w.Body.String())
-	assert.Equal(0, len(model.Items))
+	assert.Contains(destroyer.ids, todo.MustNewItemId("123"))
 }
