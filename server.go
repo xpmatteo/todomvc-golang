@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"github.com/xpmatteo/todomvc-golang/web"
 	"html/template"
 	"log"
+	_ "modernc.org/sqlite"
 	"net/http"
+	"time"
 )
 
 const port = "8080"
@@ -14,6 +18,20 @@ const port = "8080"
 var model = todo.NewList()
 
 func main() {
+	db, err := sql.Open("sqlite", "development.db")
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	db.SetConnMaxLifetime(60 * time.Minute)
+	db.SetMaxIdleConns(3)
+	db.SetMaxOpenConns(10)
+
+	if err := ping(db); err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+
 	model.Add("foo")
 	model.AddCompleted("bar")
 	model.Add("baz")
@@ -54,4 +72,10 @@ func main() {
 
 	log.Println("Listening on port " + port)
 	web.GracefulListenAndServe(":"+port, nil)
+}
+
+func ping(db *sql.DB) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	return db.PingContext(ctx)
 }

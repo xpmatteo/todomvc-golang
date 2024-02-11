@@ -33,3 +33,6 @@ node_modules
 
 # Main executable
 /todomvc-golang
+
+# Sqlite
+*.db
