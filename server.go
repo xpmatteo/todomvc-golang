@@ -17,15 +17,6 @@ const port = "8080"
 
 var model = todo.NewList()
 
-//goland:noinspection SqlNoDataSourceInspection
-const createTable = `
-create table if not exists todo_items (
-    id INTEGER PRIMARY KEY,
-    title varchar(200),
-    isDone bool
-);
-`
-
 func main() {
 	pool, err := sql.Open("sqlite", "development.db")
 	if err != nil {
@@ -35,7 +26,7 @@ func main() {
 	pool.SetConnMaxLifetime(60 * time.Minute)
 	pool.SetMaxIdleConns(3)
 	pool.SetMaxOpenConns(10)
-	if _, err := pool.Exec(createTable); err != nil {
+	if _, err := pool.Exec(db.CreateTableSQL); err != nil {
 		panic(err.Error())
 	}
 	repository := db.NewTodoRepository(pool)

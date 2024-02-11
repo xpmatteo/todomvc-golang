@@ -7,6 +7,15 @@ import (
 	"strconv"
 )
 
+//goland:noinspection SqlNoDataSourceInspection
+const CreateTableSQL = `
+create table if not exists todo_items (
+    id INTEGER PRIMARY KEY,
+    title varchar(200),
+    isDone bool
+);
+`
+
 type TodoRepository interface {
 	Find(todo.ItemId) (*todo.Item, bool, error)
 	Save(item todo.Item) (todo.ItemId, error)
