@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"testing"
 )
@@ -10,10 +11,9 @@ import (
 //goland:noinspection SqlNoDataSourceInspection
 const createTable = `
 create table todo_items (
-    id varchar(10),
+    id INTEGER PRIMARY KEY,
     title varchar(200),
-    isDone bool,
-    primary key(id)
+    isDone bool
 );
 `
 
@@ -48,6 +48,24 @@ func Test_readTodoItem_notFound(t *testing.T) {
 	assert.NoError(err)
 	assert.False(ok, "got not OK from Find")
 	assert.Nil(item, "got nil for an *item")
+}
+
+func Test_saveAndFind(t *testing.T) {
+	assert := assert.New(t)
+	db := initTestDb()
+	repo := NewTodoRepository(db)
+	original := todo.Item{Title: "hello", IsDone: true}
+
+	newId, err := repo.Save(original)
+	require.NoError(t, err)
+
+	actual, ok, err := repo.Find(newId)
+	require.NoError(t, err)
+
+	assert.True(ok, "Found?")
+	assert.Equal(original.Title, actual.Title)
+	assert.Equal(original.IsDone, actual.IsDone)
+	assert.Equal(newId, actual.Id)
 }
 
 //goland:noinspection SqlNoDataSourceInspection
