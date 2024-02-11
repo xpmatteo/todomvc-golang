@@ -81,7 +81,7 @@ order by id`
 			IsDone: isDone,
 			Id:     id,
 		}
-		result.Items[id] = item
+		result.Add1(item)
 	}
 
 	return result, nil

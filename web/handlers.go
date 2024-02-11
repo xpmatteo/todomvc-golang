@@ -1,6 +1,7 @@
 package web
 
 import (
+	"github.com/xpmatteo/todomvc-golang/db"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"net/http"
@@ -13,12 +14,18 @@ const (
 	keyTodoItemTitle = "todoItemTitle"
 )
 
-func IndexHandler(templ *template.Template, model *todo.List) http.Handler {
+func IndexHandler(templ *template.Template, repo db.TodoRepository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && r.URL.Path != pathActive && r.URL.Path != pathCompleted {
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
+		model, err := repo.FindList()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		print(model.Items)
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})

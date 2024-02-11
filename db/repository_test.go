@@ -72,16 +72,21 @@ func Test_findAll(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	id1, err := repo.Save(todo.Item{Title: "first", IsDone: false})
+	id0, err := repo.Save(todo.Item{Title: "first", IsDone: false})
 	require.NoError(t, err)
-	id2, err := repo.Save(todo.Item{Title: "second", IsDone: true})
+	id1, err := repo.Save(todo.Item{Title: "second", IsDone: true})
 	require.NoError(t, err)
 
 	actual, err := repo.FindList()
 
-	assert.Equal(2, len(actual.Items))
-	assert.Equal("first", actual.Items[id1].Title)
-	assert.Equal("second", actual.Items[id2].Title)
+	all := actual.AllItems()
+	assert.Equal(2, len(all))
+	assert.Equal("first", all[0].Title)
+	assert.Equal("second", all[1].Title)
+	assert.Equal(false, all[0].IsDone)
+	assert.Equal(true, all[1].IsDone)
+	assert.Equal(id0, all[0].Id)
+	assert.Equal(id1, all[1].Id)
 }
 
 //goland:noinspection SqlNoDataSourceInspection

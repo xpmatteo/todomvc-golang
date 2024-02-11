@@ -39,16 +39,13 @@ func main() {
 		panic(err.Error())
 	}
 	repository := db.NewTodoRepository(pool)
-	InsertTodo(repository, "foo", false)
-	InsertTodo(repository, "bar", true)
-	InsertTodo(repository, "baz", false)
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	http.Handle("/",
 		web.Metrics("index",
 			web.Logging(
 				web.GETonly(
-					web.IndexHandler(templ, model)))))
+					web.IndexHandler(templ, repository)))))
 	http.Handle("/new-todo",
 		web.Metrics("new-todo",
 			web.Logging(
@@ -79,14 +76,4 @@ func main() {
 
 	log.Println("Listening on port " + port)
 	web.GracefulListenAndServe(":"+port, nil)
-}
-
-func InsertTodo(repository db.TodoRepository, title string, isDone bool) {
-	_, err := repository.Save(todo.Item{
-		Title:  title,
-		IsDone: isDone,
-	})
-	if err != nil {
-		panic(err.Error())
-	}
 }

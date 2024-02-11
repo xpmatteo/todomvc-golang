@@ -35,6 +35,11 @@ func (l *List) Add(title string) ItemId {
 	return newId
 }
 
+func (l *List) Add1(item *Item) {
+	l.Items[item.Id] = item
+	l.ids = append(l.ids, item.Id)
+}
+
 func (l *List) AddCompleted(title string) ItemId {
 	newId := l.Add(title)
 	if newId != nil {
