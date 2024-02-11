@@ -18,12 +18,19 @@ var (
 	idTwo  = todo.MustNewItemId("2")
 )
 
-var aModel = todo.NewList()
+type ListFinderStub struct {
+	model *todo.List
+}
+
+func (l ListFinderStub) FindList() (*todo.List, error) {
+	return l.model, nil
+}
 
 func Test_indexHandler_ok(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
+	testFinder := ListFinderStub{todo.NewList()}
 
-	IndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, testFinder).ServeHTTP(w, r)
 
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "<p>[]</p>", w.Body.String())
@@ -31,8 +38,9 @@ func Test_indexHandler_ok(t *testing.T) {
 
 func Test_indexHandler_unexpectedPath(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/foo", nil)
+	testFinder := ListFinderStub{todo.NewList()}
 
-	IndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, testFinder).ServeHTTP(w, r)
 
 	assert.Equal(t, 404, w.Code)
 	assert.Equal(t, "Not found\n", w.Body.String())
@@ -41,8 +49,9 @@ func Test_indexHandler_unexpectedPath(t *testing.T) {
 func Test_indexHandler_editItem(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?edit=3", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
+	testFinder := ListFinderStub{todo.NewList()}
 
-	IndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, testFinder).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p>3</p>", w.Body.String())
@@ -51,8 +60,9 @@ func Test_indexHandler_editItem(t *testing.T) {
 func Test_indexHandler_editItemNotPassed(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
+	testFinder := ListFinderStub{todo.NewList()}
 
-	IndexHandler(templ, aModel).ServeHTTP(w, r)
+	IndexHandler(templ, testFinder).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p></p>", w.Body.String())
