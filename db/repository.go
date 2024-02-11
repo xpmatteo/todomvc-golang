@@ -10,7 +10,7 @@ import (
 type TodoRepository interface {
 	Find(todo.ItemId) (*todo.Item, bool, error)
 	Save(item todo.Item) (todo.ItemId, error)
-	FindAll() ([]*todo.Item, error)
+	FindList() (*todo.List, error)
 }
 
 type todoRepository struct {
@@ -51,7 +51,7 @@ where id = ?`
 }
 
 //goland:noinspection SqlNoDataSourceInspection
-func (t todoRepository) FindAll() ([]*todo.Item, error) {
+func (t todoRepository) FindList() (*todo.List, error) {
 	selectSql := `
 select title, isDone, id
 from todo_items
@@ -63,7 +63,7 @@ order by id`
 	}
 	defer func() { _ = rows.Close() }()
 
-	var result []*todo.Item
+	result := todo.NewList()
 	for rows.Next() {
 		var title string
 		var isDone bool
@@ -81,7 +81,7 @@ order by id`
 			IsDone: isDone,
 			Id:     id,
 		}
-		result = append(result, item)
+		result.Items[id] = item
 	}
 
 	return result, nil
