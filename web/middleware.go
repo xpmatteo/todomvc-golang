@@ -54,6 +54,11 @@ func Slowdown(delayMilli int, handler http.Handler) http.Handler {
 	})
 }
 
+// Metrics generates Prometheus metrics for a handler
+//
+// The implementation is borrowed from the [Prometheus examples]
+//
+// [Prometheus examples]: https://github.com/prometheus/client_golang/blob/v1.18.0/examples/middleware/httpmiddleware/httpmiddleware.go
 func Metrics(handlerName string, handler http.Handler) http.Handler {
 	reg := prometheus.WrapRegistererWith(prometheus.Labels{"handler": handlerName}, prometheus.DefaultRegisterer)
 

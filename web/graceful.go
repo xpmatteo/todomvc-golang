@@ -16,6 +16,8 @@ import (
 // There is no timeout enforced, because it is the job of the container to do that.
 // For instance, Kubernetes will eventually forcefully kill a pod after waiting
 // for a configured timeout for it to exit cleanly.
+//
+// The implementation is taken from [https://pkg.go.dev/net/http#Server.Shutdown]
 func GracefulListenAndServe(addr string, handler http.Handler) {
 	server := &http.Server{Addr: addr, Handler: handler}
 
