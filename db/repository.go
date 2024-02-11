@@ -2,13 +2,12 @@ package db
 
 import (
 	"database/sql"
-	"errors"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	_ "modernc.org/sqlite"
 )
 
 type TodoRepository interface {
-	Find(todo.ItemId) (*todo.Item, error)
+	Find(todo.ItemId) (*todo.Item, bool, error)
 }
 
 type todoRepository struct {
@@ -20,27 +19,30 @@ func NewTodoRepository(db *sql.DB) TodoRepository {
 }
 
 //goland:noinspection SqlNoDataSourceInspection
-func (t todoRepository) Find(id todo.ItemId) (*todo.Item, error) {
+func (t todoRepository) Find(id todo.ItemId) (item *todo.Item, ok bool, err error) {
 	sql := `
 select title, isDone
 from todo_items
 where id = ?`
 	rows, err := t.db.Query(sql, id.String())
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	if rows.Next() {
 		var title string
 		var isDone bool
-		rows.Scan(&title, &isDone)
+		err := rows.Scan(&title, &isDone)
+		if err != nil {
+			return nil, false, err
+		}
 		return &todo.Item{
 			Title:  title,
 			IsDone: isDone,
 			Id:     id,
-		}, nil
+		}, true, nil
 	}
 
-	return nil, errors.New("not found")
+	return nil, false, nil
 }
