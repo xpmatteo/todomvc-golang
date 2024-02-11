@@ -1,9 +1,9 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/xpmatteo/todomvc-golang/db"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"github.com/xpmatteo/todomvc-golang/web"
 	"html/template"
@@ -17,24 +17,31 @@ const port = "8080"
 
 var model = todo.NewList()
 
+//goland:noinspection SqlNoDataSourceInspection
+const createTable = `
+create table if not exists todo_items (
+    id INTEGER PRIMARY KEY,
+    title varchar(200),
+    isDone bool
+);
+`
+
 func main() {
-	db, err := sql.Open("sqlite", "development.db")
+	pool, err := sql.Open("sqlite", "development.db")
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
-	db.SetConnMaxLifetime(60 * time.Minute)
-	db.SetMaxIdleConns(3)
-	db.SetMaxOpenConns(10)
-
-	if err := ping(db); err != nil {
-		log.Fatal(err.Error())
-		return
+	pool.SetConnMaxLifetime(60 * time.Minute)
+	pool.SetMaxIdleConns(3)
+	pool.SetMaxOpenConns(10)
+	if _, err := pool.Exec(createTable); err != nil {
+		panic(err.Error())
 	}
-
-	model.Add("foo")
-	model.AddCompleted("bar")
-	model.Add("baz")
+	repository := db.NewTodoRepository(pool)
+	InsertTodo(repository, "foo", false)
+	InsertTodo(repository, "bar", true)
+	InsertTodo(repository, "baz", false)
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	http.Handle("/",
@@ -74,8 +81,12 @@ func main() {
 	web.GracefulListenAndServe(":"+port, nil)
 }
 
-func ping(db *sql.DB) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-	return db.PingContext(ctx)
+func InsertTodo(repository db.TodoRepository, title string, isDone bool) {
+	_, err := repository.Save(todo.Item{
+		Title:  title,
+		IsDone: isDone,
+	})
+	if err != nil {
+		panic(err.Error())
+	}
 }

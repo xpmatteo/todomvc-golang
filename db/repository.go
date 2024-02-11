@@ -10,6 +10,7 @@ import (
 type TodoRepository interface {
 	Find(todo.ItemId) (*todo.Item, bool, error)
 	Save(item todo.Item) (todo.ItemId, error)
+	FindAll() ([]*todo.Item, error)
 }
 
 type todoRepository struct {
@@ -47,6 +48,43 @@ where id = ?`
 	}
 
 	return nil, false, nil
+}
+
+//goland:noinspection SqlNoDataSourceInspection
+func (t todoRepository) FindAll() ([]*todo.Item, error) {
+	selectSql := `
+select title, isDone, id
+from todo_items
+order by id`
+
+	rows, err := t.db.Query(selectSql)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var result []*todo.Item
+	for rows.Next() {
+		var title string
+		var isDone bool
+		var idInt int
+		err := rows.Scan(&title, &isDone, &idInt)
+		if err != nil {
+			return nil, err
+		}
+		id, err := todo.NewItemId(strconv.Itoa(idInt))
+		if err != nil {
+			return nil, err
+		}
+		item := &todo.Item{
+			Title:  title,
+			IsDone: isDone,
+			Id:     id,
+		}
+		result = append(result, item)
+	}
+
+	return result, nil
 }
 
 //goland:noinspection SqlNoDataSourceInspection

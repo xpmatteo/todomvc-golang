@@ -10,7 +10,7 @@ import (
 
 //goland:noinspection SqlNoDataSourceInspection
 const createTable = `
-create table todo_items (
+create table if not exists todo_items (
     id INTEGER PRIMARY KEY,
     title varchar(200),
     isDone bool
@@ -66,6 +66,20 @@ func Test_saveAndFind(t *testing.T) {
 	assert.Equal(original.Title, actual.Title)
 	assert.Equal(original.IsDone, actual.IsDone)
 	assert.Equal(newId, actual.Id)
+}
+
+func Test_findAll(t *testing.T) {
+	assert := assert.New(t)
+	db := initTestDb()
+	repo := NewTodoRepository(db)
+	_, err := repo.Save(todo.Item{Title: "first", IsDone: false})
+	require.NoError(t, err)
+	_, err = repo.Save(todo.Item{Title: "second", IsDone: true})
+	require.NoError(t, err)
+
+	actual, err := repo.FindAll()
+
+	assert.Equal(2, len(actual))
 }
 
 //goland:noinspection SqlNoDataSourceInspection
