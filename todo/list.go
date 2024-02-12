@@ -5,10 +5,11 @@ import (
 )
 
 type Item struct {
-	Title     string
-	IsDone    bool
-	Id        ItemId
-	IsDeleted bool
+	Title      string
+	IsDone     bool
+	Id         ItemId
+	IsDeleted  bool // help with persistence
+	IsModified bool // help with persistence
 }
 
 type List struct {
@@ -46,6 +47,7 @@ func (l *List) Toggle(id ItemId) error {
 		return errors.New("bad todo-item ID")
 	}
 	item.IsDone = !item.IsDone
+	item.IsModified = true
 	return nil
 }
 
@@ -55,6 +57,7 @@ func (l *List) Edit(id ItemId, title string) error {
 		return errors.New("bad todo-item ID")
 	}
 	item.Title = title
+	item.IsModified = true
 	return nil
 }
 
@@ -66,7 +69,7 @@ func (l *List) Destroy(id ItemId) {
 }
 
 func (l *List) AllItems() []*Item {
-	result := []*Item{}
+	var result []*Item
 	l.forEach(func(item *Item) {
 		result = append(result, item)
 	})
@@ -74,7 +77,7 @@ func (l *List) AllItems() []*Item {
 }
 
 func (l *List) CompletedItems() []*Item {
-	result := []*Item{}
+	var result []*Item
 	l.forEach(func(item *Item) {
 		if item.IsDone {
 			result = append(result, item)
@@ -84,7 +87,7 @@ func (l *List) CompletedItems() []*Item {
 }
 
 func (l *List) ActiveItems() []*Item {
-	result := []*Item{}
+	var result []*Item
 	l.forEach(func(item *Item) {
 		if !item.IsDone {
 			result = append(result, item)

@@ -81,6 +81,7 @@ func Test_editHandler_ok(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("<p>1</p>", w.Body.String())
 	assert.Equal("changedTitle", model.Items[0].Title)
+	assert.Equal(true, model.Items[0].IsModified)
 }
 
 func Test_editHandler_textIsEmpty(t *testing.T) {
