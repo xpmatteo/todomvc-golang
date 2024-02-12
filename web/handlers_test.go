@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/xpmatteo/todomvc-golang/db"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 	"testing"
 )
 
-var templ = template.Must(template.New("index").Parse("<p>{{.Items}}</p>"))
+var templ = template.Must(template.New("index").Parse("items: {{range $item := .Items}}{{$item.Title}},{{end}}"))
 
 var (
 	idZero = todo.MustNewItemId("0")
@@ -28,12 +29,12 @@ func (l ListFinderStub) FindList() (*todo.List, error) {
 
 func Test_indexHandler_ok(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
-	testFinder := ListFinderStub{todo.NewList()}
+	repository := db.FakeRepository().Add("item0").Add("item1")
 
-	IndexHandler(templ, testFinder).ServeHTTP(w, r)
+	IndexHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, "<p>[]</p>", w.Body.String())
+	assert.Equal(t, "items: item0,item1,", w.Body.String())
 }
 
 func Test_indexHandler_unexpectedPath(t *testing.T) {
@@ -93,7 +94,7 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	EditHandler(templ, model).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
-	assert.Equal("<p>[]</p>", w.Body.String())
+	assert.Equal("items: ", w.Body.String())
 	assert.Equal(0, len(model.Items))
 }
 
@@ -108,14 +109,14 @@ func (d *DestroyerMock) Destroy(id todo.ItemId) error {
 
 func Test_destroyHandler_ok(t *testing.T) {
 	assert := assert.New(t)
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=123"))
+	repository := db.FakeRepository().Add("foo").Add("bar").Add("baz")
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=1"))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	testFinder := ListFinderStub{todo.NewList()}
-	destroyer := &DestroyerMock{}
 
-	DestroyHandler(templ, testFinder, destroyer).ServeHTTP(w, r)
+	DestroyHandler(templ, repository, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
-	assert.Equal("<p>[]</p>", w.Body.String())
-	assert.Contains(destroyer.ids, todo.MustNewItemId("123"))
+	assert.Equal("items: foo,baz,", w.Body.String())
+	remainingItems, _ := repository.FindList()
+	assert.Equal(2, len(remainingItems.AllItems()))
 }

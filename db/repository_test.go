@@ -17,39 +17,6 @@ create table if not exists todo_items (
 );
 `
 
-//goland:noinspection SqlNoDataSourceInspection
-func Test_readTodoItem_ok(t *testing.T) {
-	assert := assert.New(t)
-	db := initTestDb()
-	mustExec(db, "insert into todo_items (id, title, isDone) values (?, ?, ?)", "123", "foo", false)
-	repo := NewTodoRepository(db)
-	id := todo.MustNewItemId("123")
-
-	actual, ok, err := repo.Find(id)
-
-	assert.NoError(err)
-	assert.True(ok, "got OK from Find")
-	expected := &todo.Item{
-		Title:  "foo",
-		IsDone: false,
-		Id:     id,
-	}
-	assert.Equal(expected, actual)
-}
-
-func Test_readTodoItem_notFound(t *testing.T) {
-	assert := assert.New(t)
-	db := initTestDb()
-	repo := NewTodoRepository(db)
-	id := todo.MustNewItemId("678")
-
-	item, ok, err := repo.Find(id)
-
-	assert.NoError(err)
-	assert.False(ok, "got not OK from Find")
-	assert.Nil(item, "got nil for an *item")
-}
-
 func Test_saveAndFind(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
@@ -59,13 +26,14 @@ func Test_saveAndFind(t *testing.T) {
 	newId, err := repo.Save(original)
 	require.NoError(t, err)
 
-	actual, ok, err := repo.Find(newId)
+	actual, err := repo.FindList()
 	require.NoError(t, err)
 
-	assert.True(ok, "Found?")
-	assert.Equal(original.Title, actual.Title)
-	assert.Equal(original.IsDone, actual.IsDone)
-	assert.Equal(newId, actual.Id)
+	foundItems := actual.AllItems()
+	assert.Equal(1, len(foundItems))
+	assert.Equal(original.Title, foundItems[0].Title)
+	assert.Equal(original.IsDone, foundItems[0].IsDone)
+	assert.Equal(newId, foundItems[0].Id)
 }
 
 func Test_findAll(t *testing.T) {
