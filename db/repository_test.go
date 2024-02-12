@@ -76,6 +76,71 @@ func Test_destroy_ok(t *testing.T) {
 	assert.Equal("first", list.Items[0].Title)
 }
 
+func Test_saveNewList(t *testing.T) {
+	assert := assert.New(t)
+	db := initTestDb()
+	repo := NewTodoRepository(db)
+	list := todo.NewList()
+	list.Add("first", nil)
+	list.Add("second", nil)
+
+	err := repo.SaveList(list)
+	require.NoError(t, err)
+
+	found, err := repo.FindList()
+	require.NoError(t, err)
+	foundItems := found.AllItems()
+	assert.Equal(2, len(foundItems))
+	assert.Equal("first", foundItems[0].Title)
+	assert.Equal("second", foundItems[1].Title)
+	assert.NotNil(foundItems[0].Id)
+	assert.NotNil(foundItems[1].Id)
+}
+
+func Test_saveModifiedList_isDone(t *testing.T) {
+	assert := assert.New(t)
+	db := initTestDb()
+	repo := NewTodoRepository(db)
+	id, err := repo.Save(todo.Item{Title: "any", Id: todo.MustNewItemId("100")})
+	require.NoError(t, err)
+	list, err := repo.FindList()
+	require.NoError(t, err)
+	err = list.Toggle(id)
+	require.NoError(t, err)
+
+	err = repo.SaveList(list)
+	require.NoError(t, err)
+
+	found, err := repo.FindList()
+	require.NoError(t, err)
+	foundItems := found.AllItems()
+	assert.Equal(1, len(foundItems))
+	assert.Equal(id, foundItems[0].Id)
+	assert.Equal(true, foundItems[0].IsDone)
+}
+
+func Test_saveModifiedList_editTitle(t *testing.T) {
+	assert := assert.New(t)
+	db := initTestDb()
+	repo := NewTodoRepository(db)
+	id, err := repo.Save(todo.Item{Title: "any", Id: todo.MustNewItemId("100")})
+	require.NoError(t, err)
+	list, err := repo.FindList()
+	require.NoError(t, err)
+	err = list.Edit(id, "newTitle")
+	require.NoError(t, err)
+
+	err = repo.SaveList(list)
+	require.NoError(t, err)
+
+	found, err := repo.FindList()
+	require.NoError(t, err)
+	foundItems := found.AllItems()
+	assert.Equal(1, len(foundItems))
+	assert.Equal(id, foundItems[0].Id)
+	assert.Equal("newTitle", foundItems[0].Title)
+}
+
 //goland:noinspection SqlNoDataSourceInspection
 func initTestDb() *sql.DB {
 	db, err := sql.Open("sqlite", "test.db")

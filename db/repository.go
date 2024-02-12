@@ -20,10 +20,28 @@ type TodoRepository interface {
 	Save(item todo.Item) (todo.ItemId, error)
 	FindList() (*todo.List, error)
 	Destroy(id todo.ItemId) error
+	SaveList(list *todo.List) error
 }
 
 type todoRepository struct {
 	db *sql.DB
+}
+
+func (t todoRepository) SaveList(list *todo.List) error {
+	for _, item := range list.Items {
+		if item.IsModified {
+			err := t.Update(item)
+			if err != nil {
+				return err
+			}
+		} else {
+			_, err := t.Save(*item)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func NewTodoRepository(db *sql.DB) TodoRepository {
@@ -101,5 +119,16 @@ values (?, ?)`
 func (t todoRepository) Destroy(id todo.ItemId) error {
 	destroySql := `delete from todo_items where id = ?`
 	_, err := t.db.Exec(destroySql, id)
+	return err
+}
+
+//goland:noinspection SqlNoDataSourceInspection
+func (t todoRepository) Update(item *todo.Item) error {
+	updateSql := `
+update todo_items
+set title = ?
+  , isDone = ?
+where id = ?`
+	_, err := t.db.Exec(updateSql, item.Title, item.IsDone, item.Id)
 	return err
 }
