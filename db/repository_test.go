@@ -23,11 +23,8 @@ func Test_saveAndFind(t *testing.T) {
 	repo := NewTodoRepository(db)
 	original := todo.Item{Title: "hello", IsDone: true}
 
-	newId, err := repo.Insert(original)
-	require.NoError(t, err)
-
-	actual, err := repo.FindList()
-	require.NoError(t, err)
+	newId := mustInsert(repo, &original)
+	actual := mustFindList(repo)
 
 	foundItems := actual.AllItems()
 	assert.Equal(1, len(foundItems))
@@ -40,12 +37,10 @@ func Test_findAll(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	id0, err := repo.Insert(todo.Item{Title: "first", IsDone: false})
-	require.NoError(t, err)
-	id1, err := repo.Insert(todo.Item{Title: "second", IsDone: true})
-	require.NoError(t, err)
+	id0 := mustInsert(repo, &todo.Item{Title: "first", IsDone: false})
+	id1 := mustInsert(repo, &todo.Item{Title: "second", IsDone: true})
 
-	actual, err := repo.FindList()
+	actual := mustFindList(repo)
 
 	all := actual.AllItems()
 	assert.Equal(2, len(all))
@@ -61,17 +56,13 @@ func Test_destroy_ok(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	_, err := repo.Insert(todo.Item{Title: "first", IsDone: false})
-	require.NoError(t, err)
-	id1, err := repo.Insert(todo.Item{Title: "second", IsDone: true})
+	_ = mustInsert(repo, &todo.Item{Title: "first", IsDone: false})
+	id1 := mustInsert(repo, &todo.Item{Title: "second", IsDone: true})
+
+	err := repo.Destroy(id1)
 	require.NoError(t, err)
 
-	err = repo.Destroy(id1)
-	require.NoError(t, err)
-
-	list, err := repo.FindList()
-	require.NoError(t, err)
-
+	list := mustFindList(repo)
 	assert.Equal(1, len(list.Items))
 	assert.Equal("first", list.Items[0].Title)
 }
@@ -87,8 +78,7 @@ func Test_saveNewList(t *testing.T) {
 	err := repo.SaveList(list)
 	require.NoError(t, err)
 
-	found, err := repo.FindList()
-	require.NoError(t, err)
+	found := mustFindList(repo)
 	foundItems := found.AllItems()
 	assert.Equal(2, len(foundItems))
 	assert.Equal("first", foundItems[0].Title)
@@ -99,10 +89,8 @@ func Test_saveNewList(t *testing.T) {
 
 func Test_saveModifiedList_isDone(t *testing.T) {
 	assert := assert.New(t)
-	db := initTestDb()
-	repo := NewTodoRepository(db)
-	id, err := repo.Insert(todo.Item{Title: "any"})
-	require.NoError(t, err)
+	repo := NewTodoRepository(initTestDb())
+	id := mustInsert(repo, &todo.Item{Title: "any"})
 	list, err := repo.FindList()
 	require.NoError(t, err)
 	err = list.Toggle(id)
@@ -111,8 +99,7 @@ func Test_saveModifiedList_isDone(t *testing.T) {
 	err = repo.SaveList(list)
 	require.NoError(t, err)
 
-	found, err := repo.FindList()
-	require.NoError(t, err)
+	found := mustFindList(repo)
 	foundItems := found.AllItems()
 	assert.Equal(1, len(foundItems))
 	assert.Equal(id, foundItems[0].Id)
@@ -121,20 +108,16 @@ func Test_saveModifiedList_isDone(t *testing.T) {
 
 func Test_saveModifiedList_editTitle(t *testing.T) {
 	assert := assert.New(t)
-	db := initTestDb()
-	repo := NewTodoRepository(db)
-	id, err := repo.Insert(todo.Item{Title: "any"})
-	require.NoError(t, err)
+	repo := NewTodoRepository(initTestDb())
+	id := mustInsert(repo, &todo.Item{Title: "any"})
 	list, err := repo.FindList()
 	require.NoError(t, err)
 
 	err = list.Edit(id, "newTitle")
 	require.NoError(t, err)
-	err = repo.SaveList(list)
-	require.NoError(t, err)
+	mustSaveList(repo, list)
 
-	found, err := repo.FindList()
-	require.NoError(t, err)
+	found := mustFindList(repo)
 	foundItems := found.AllItems()
 	assert.Equal(1, len(foundItems))
 	assert.Equal(id, foundItems[0].Id)
@@ -143,19 +126,14 @@ func Test_saveModifiedList_editTitle(t *testing.T) {
 
 func Test_saveModifiedList_destroyItem(t *testing.T) {
 	assert := assert.New(t)
-	db := initTestDb()
-	repo := NewTodoRepository(db)
-	id, err := repo.Insert(todo.Item{Title: "any"})
-	require.NoError(t, err)
-	list, err := repo.FindList()
-	require.NoError(t, err)
+	repo := NewTodoRepository(initTestDb())
+	id := mustInsert(repo, &todo.Item{Title: "any"})
+	list := mustFindList(repo)
 
 	list.Destroy(id)
-	err = repo.SaveList(list)
-	require.NoError(t, err)
+	mustSaveList(repo, list)
 
-	found, err := repo.FindList()
-	require.NoError(t, err)
+	found := mustFindList(repo)
 	foundItems := found.AllItems()
 	assert.Equal(0, len(foundItems))
 }
@@ -173,6 +151,29 @@ func initTestDb() *sql.DB {
 
 func mustExec(db *sql.DB, sql string, args ...any) {
 	_, err := db.Exec(sql, args...)
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+func mustInsert(repo TodoRepository, item *todo.Item) todo.ItemId {
+	id, err := repo.Insert(*item)
+	if err != nil {
+		panic(err.Error())
+	}
+	return id
+}
+
+func mustFindList(repo TodoRepository) *todo.List {
+	list, err := repo.FindList()
+	if err != nil {
+		panic(err.Error())
+	}
+	return list
+}
+
+func mustSaveList(repo TodoRepository, list *todo.List) {
+	err := repo.SaveList(list)
 	if err != nil {
 		panic(err.Error())
 	}
