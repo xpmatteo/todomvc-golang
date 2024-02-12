@@ -2,54 +2,46 @@ package todo
 
 import (
 	"errors"
-	"strconv"
 )
 
 type Item struct {
-	Title  string
-	IsDone bool
-	Id     ItemId
+	Title     string
+	IsDone    bool
+	Id        ItemId
+	IsDeleted bool
 }
 
 type List struct {
-	Items  map[ItemId]*Item
-	ids    []ItemId
+	Items  []*Item
 	nextId int
 }
 
 func NewList() *List {
 	return &List{
-		make(map[ItemId]*Item),
-		make([]ItemId, 0),
+		make([]*Item, 0),
 		0}
 }
 
-func (l *List) Add(title string) ItemId {
+func (l *List) Add(title string, id ItemId) {
 	if len(title) == 0 {
-		return nil
+		return
 	}
-	newId := MustNewItemId(strconv.Itoa(l.nextId))
-	l.Items[newId] = &Item{title, false, newId}
-	l.nextId++
-	l.ids = append(l.ids, newId)
-	return newId
+	l.Items = append(l.Items, &Item{Title: title, Id: id})
 }
 
 func (l *List) Add1(item *Item) {
-	l.Items[item.Id] = item
-	l.ids = append(l.ids, item.Id)
+	l.Items = append(l.Items, item)
 }
 
-func (l *List) AddCompleted(title string) ItemId {
-	newId := l.Add(title)
-	if newId != nil {
-		_ = l.Toggle(newId)
-	}
-	return newId
+func (l *List) AddCompleted(title string) {
+	l.Add1(&Item{
+		Title:  title,
+		IsDone: true,
+	})
 }
 
 func (l *List) Toggle(id ItemId) error {
-	item, ok := l.Items[id]
+	item, ok := l.find(id)
 	if !ok {
 		return errors.New("bad todo-item ID")
 	}
@@ -58,7 +50,7 @@ func (l *List) Toggle(id ItemId) error {
 }
 
 func (l *List) Edit(id ItemId, title string) error {
-	item, ok := l.Items[id]
+	item, ok := l.find(id)
 	if !ok {
 		return errors.New("bad todo-item ID")
 	}
@@ -67,8 +59,10 @@ func (l *List) Edit(id ItemId, title string) error {
 }
 
 func (l *List) Destroy(id ItemId) {
-	// we do not update l.ids; we will simply ignore missing items in forEach
-	delete(l.Items, id)
+	item, ok := l.find(id)
+	if ok {
+		item.IsDeleted = true
+	}
 }
 
 func (l *List) AllItems() []*Item {
@@ -100,12 +94,19 @@ func (l *List) ActiveItems() []*Item {
 }
 
 func (l *List) forEach(f func(*Item)) {
-	for _, id := range l.ids {
-		item := l.Items[id]
-		if item == nil {
-			// item was destroyed
+	for _, item := range l.Items {
+		if item.IsDeleted {
 			continue
 		}
 		f(item)
 	}
+}
+
+func (l *List) find(id ItemId) (item *Item, ok bool) {
+	for _, item := range l.Items {
+		if item.Id == id {
+			return item, true
+		}
+	}
+	return nil, false
 }

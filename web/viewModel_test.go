@@ -10,7 +10,7 @@ import (
 
 func Test_dataForTheTemplate_items(t *testing.T) {
 	model := todo.NewList()
-	model.Add("zero")
+	model.Add("zero", nil)
 	model.AddCompleted("one")
 
 	cases := []struct {
@@ -18,9 +18,9 @@ func Test_dataForTheTemplate_items(t *testing.T) {
 		url           string
 		expectedItems []*todo.Item
 	}{
-		{"all", "/", []*todo.Item{model.Items[idZero], model.Items[idOne]}},
-		{"active", "/active", []*todo.Item{model.Items[idZero]}},
-		{"complete", "/completed", []*todo.Item{model.Items[idOne]}},
+		{"all", "/", []*todo.Item{model.Items[0], model.Items[1]}},
+		{"active", "/active", []*todo.Item{model.Items[0]}},
+		{"complete", "/completed", []*todo.Item{model.Items[1]}},
 	}
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
@@ -32,7 +32,7 @@ func Test_dataForTheTemplate_items(t *testing.T) {
 
 func Test_dataForTheTemplate_ItemsCount(t *testing.T) {
 	model := todo.NewList()
-	model.Add("zero")
+	model.Add("zero", nil)
 	model.AddCompleted("one")
 
 	data := viewModel(model, httptest.NewRequest(http.MethodGet, "/completed", nil))
@@ -43,8 +43,8 @@ func Test_dataForTheTemplate_ItemsCount(t *testing.T) {
 func Test_dataForTheTemplate_itemsLeftLabel(t *testing.T) {
 	assert := assert.New(t)
 	list := todo.NewList()
-	list.Add("zero")
-	list.Add("one")
+	list.Add("zero", idZero)
+	list.Add("one", idOne)
 
 	data := viewModel(list, httptest.NewRequest(http.MethodGet, "/", nil))
 	assert.Equal("2 items left", data["ItemsLeft"])

@@ -71,16 +71,16 @@ func Test_indexHandler_editItemNotPassed(t *testing.T) {
 
 func Test_editHandler_ok(t *testing.T) {
 	assert := assert.New(t)
-	w, r := postRequest("todoItemId=0&todoItemTitle=bar")
+	w, r := postRequest("todoItemId=0&todoItemTitle=changedTitle")
 	model := todo.NewList()
-	model.Add("foo")
+	model.Add("foo", idZero)
 	templ := template.Must(template.New("index").Parse("<p>{{len .Items}}</p>"))
 
 	EditHandler(templ, model).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("<p>1</p>", w.Body.String())
-	assert.Equal("bar", model.Items[idZero].Title)
+	assert.Equal("changedTitle", model.Items[0].Title)
 }
 
 func Test_editHandler_textIsEmpty(t *testing.T) {
@@ -88,13 +88,13 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	w, r := postRequest("todoItemId=0&todoItemTitle=")
 
 	model := todo.NewList()
-	model.Add("foo")
+	model.Add("foo", idZero)
 
 	EditHandler(templ, model).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("items: ", w.Body.String())
-	assert.Equal(0, len(model.Items))
+	assert.Equal(0, len(model.AllItems()))
 }
 
 func Test_destroyHandler_ok(t *testing.T) {

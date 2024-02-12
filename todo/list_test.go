@@ -14,136 +14,89 @@ func Test_index(t *testing.T) {
 func Test_AddItem_ok(t *testing.T) {
 	list := NewList()
 
-	list.Add("foobar")
+	list.Add("foobar", nil)
 
 	assert.Equal(t, 1, len(list.Items))
-	assert.Equal(t, "foobar", list.Items[MustNewItemId("0")].Title)
-	assert.False(t, list.Items[MustNewItemId("0")].IsDone, "new item should not be done")
+	assert.Equal(t, "foobar", list.Items[0].Title)
+	assert.False(t, list.Items[0].IsDone, "new item should not be done")
 }
 
 func Test_AddItem_Validation(t *testing.T) {
 	list := NewList()
 
-	list.Add("")
+	list.Add("", nil)
 
 	assert.Equal(t, 0, len(list.Items), "empty items not allowed")
-}
-
-func Test_IDs_sequential(t *testing.T) {
-	assert := assert.New(t)
-	list := NewList()
-	list.Add("first")
-	list.Add("second")
-
-	assert.Equal(itemId("0"), list.Items[MustNewItemId("0")].Id)
-	assert.Equal(itemId("1"), list.Items[MustNewItemId("1")].Id)
 }
 
 func Test_Toggle_OK(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()
-	list.Add("first")
-	list.Add("second")
-	assert.False(list.Items[MustNewItemId("1")].IsDone, "initially")
+	list.Add1(&Item{Title: "foo", Id: MustNewItemId("100")})
+	list.Add1(&Item{Title: "bar", Id: MustNewItemId("200")})
 
-	_ = list.Toggle(MustNewItemId("1"))
-	assert.True(list.Items[MustNewItemId("1")].IsDone, "after one toggle")
+	_ = list.Toggle(MustNewItemId("200"))
+	assert.True(list.Items[1].IsDone, "after one toggle")
 
-	_ = list.Toggle(MustNewItemId("1"))
-	assert.False(list.Items[MustNewItemId("1")].IsDone, "after another toggle")
+	_ = list.Toggle(MustNewItemId("200"))
+	assert.False(list.Items[1].IsDone, "after another toggle")
 }
 
 func Test_Toggle_error(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()
-	list.Add("first")
+	list.Add1(&Item{Title: "foo", Id: MustNewItemId("1")})
 
-	assert.Error(list.Toggle(MustNewItemId("1")))
-	assert.NoError(list.Toggle(MustNewItemId("0")))
+	assert.Error(list.Toggle(MustNewItemId("100")))
+	assert.NoError(list.Toggle(MustNewItemId("1")))
 }
 
 func Test_Destroy(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()
-	list.Add("zero")
-	list.Add("one")
-	list.Add("two")
+	list.Add1(&Item{Title: "100", Id: MustNewItemId("100")})
+	list.Add1(&Item{Title: "200", Id: MustNewItemId("200")})
+	list.Add1(&Item{Title: "300", Id: MustNewItemId("300")})
 
-	list.Destroy(MustNewItemId("1"))
+	list.Destroy(MustNewItemId("200"))
 
-	assert.Equal(2, len(list.Items))
-}
-
-func Test_Ids_SurviveAfterDestroy(t *testing.T) {
-	assert := assert.New(t)
-	list := NewList()
-	list.Add("zero")
-	list.Add("one")
-	list.Add("two")
-	list.Destroy(MustNewItemId("1"))
-
-	err := list.Toggle(MustNewItemId("2"))
-
-	assert.NoError(err)
+	assert.Equal([]string{"100", "300"}, titles(list.AllItems()))
 }
 
 func Test_listAllItems(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()
-	list.Add("zero")
+	list.Add("zero", nil)
 	list.AddCompleted("one")
-	list.Add("two")
+	list.Add("two", nil)
 
 	actual := list.AllItems()
 
-	expected := []*Item{
-		list.Items[MustNewItemId("0")],
-		list.Items[MustNewItemId("1")],
-		list.Items[MustNewItemId("2")],
+	expected := []string{
+		"zero", "one", "two",
 	}
-	assert.Equal(expected, actual)
+	assert.Equal(expected, titles(actual))
 }
 
 func Test_listCompletedItems(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()
-	list.Add("zero")
+	list.Add("zero", nil)
 	list.AddCompleted("one")
-	list.Add("two")
+	list.Add("two", nil)
 
 	actual := list.CompletedItems()
 
-	expected := []*Item{
-		list.Items[MustNewItemId("1")],
+	expected := []string{
+		"one",
 	}
-	assert.Equal(expected, actual)
+	assert.Equal(expected, titles(actual))
 }
 
-func Test_listMethodsPreserveInsertionOrder(t *testing.T) {
-	assert := assert.New(t)
-	list := NewList()
-	list.Add("zero")
-	list.AddCompleted("one")
-	list.Add("two")
-	list.Add("three")
-	list.Add("four")
-
-	expected := []*Item{
-		list.Items[MustNewItemId("0")],
-		list.Items[MustNewItemId("1")],
-		list.Items[MustNewItemId("2")],
-		list.Items[MustNewItemId("3")],
-		list.Items[MustNewItemId("4")],
+func titles(actual []*Item) []string {
+	result := make([]string, len(actual))
+	for i, item := range actual {
+		result[i] = item.Title
 	}
-	assert.Equal(expected, list.AllItems())
-
-	list.Destroy(MustNewItemId("2"))
-
-	remaining := []*Item{
-		list.Items[MustNewItemId("0")],
-		list.Items[MustNewItemId("1")],
-		list.Items[MustNewItemId("3")],
-		list.Items[MustNewItemId("4")],
-	}
-	assert.Equal(remaining, list.AllItems())
+	return result
 }

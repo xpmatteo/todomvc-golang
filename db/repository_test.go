@@ -61,7 +61,7 @@ func Test_destroy_ok(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	id0, err := repo.Save(todo.Item{Title: "first", IsDone: false})
+	_, err := repo.Save(todo.Item{Title: "first", IsDone: false})
 	require.NoError(t, err)
 	id1, err := repo.Save(todo.Item{Title: "second", IsDone: true})
 	require.NoError(t, err)
@@ -73,7 +73,7 @@ func Test_destroy_ok(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(1, len(list.Items))
-	assert.Equal("first", list.Items[id0].Title)
+	assert.Equal("first", list.Items[0].Title)
 }
 
 //goland:noinspection SqlNoDataSourceInspection

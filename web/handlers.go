@@ -46,7 +46,7 @@ func NewItemHandler(templ *template.Template, model *todo.List) http.Handler {
 			badRequest(w, err)
 			return
 		}
-		model.Add(r.Form.Get("new-todo"))
+		model.Add(r.Form.Get("new-todo"), nil)
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
