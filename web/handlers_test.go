@@ -71,8 +71,7 @@ func Test_indexHandler_editItemNotPassed(t *testing.T) {
 
 func Test_editHandler_ok(t *testing.T) {
 	assert := assert.New(t)
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=0&todoItemTitle=bar"))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	w, r := postRequest("todoItemId=0&todoItemTitle=bar")
 	model := todo.NewList()
 	model.Add("foo")
 	templ := template.Must(template.New("index").Parse("<p>{{len .Items}}</p>"))
@@ -86,8 +85,8 @@ func Test_editHandler_ok(t *testing.T) {
 
 func Test_editHandler_textIsEmpty(t *testing.T) {
 	assert := assert.New(t)
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=0&todoItemTitle="))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	w, r := postRequest("todoItemId=0&todoItemTitle=")
+
 	model := todo.NewList()
 	model.Add("foo")
 
@@ -98,25 +97,21 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	assert.Equal(0, len(model.Items))
 }
 
-type DestroyerMock struct {
-	ids []todo.ItemId
-}
-
-func (d *DestroyerMock) Destroy(id todo.ItemId) error {
-	d.ids = append(d.ids, id)
-	return nil
-}
-
 func Test_destroyHandler_ok(t *testing.T) {
 	assert := assert.New(t)
-	repository := db.FakeRepository().Add("foo").Add("bar").Add("baz")
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader("todoItemId=1"))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	repository := db.FakeRepository().Add("zero").Add("one").Add("two")
+	w, r := postRequest("todoItemId=1")
 
 	DestroyHandler(templ, repository, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
-	assert.Equal("items: foo,baz,", w.Body.String())
+	assert.Equal("items: zero,two,", w.Body.String())
 	remainingItems, _ := repository.FindList()
 	assert.Equal(2, len(remainingItems.AllItems()))
+}
+
+func postRequest(body string) (*httptest.ResponseRecorder, *http.Request) {
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/", strings.NewReader(body))
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return w, r
 }
