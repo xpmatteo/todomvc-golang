@@ -17,7 +17,7 @@ create table if not exists todo_items (
 `
 
 type TodoRepository interface {
-	Save(item todo.Item) (todo.ItemId, error)
+	Insert(item todo.Item) (todo.ItemId, error)
 	FindList() (*todo.List, error)
 	Destroy(id todo.ItemId) error
 	SaveList(list *todo.List) error
@@ -29,13 +29,18 @@ type todoRepository struct {
 
 func (t todoRepository) SaveList(list *todo.List) error {
 	for _, item := range list.Items {
-		if item.IsModified {
+		if item.IsDeleted {
+			err := t.Destroy(item.Id)
+			if err != nil {
+				return err
+			}
+		} else if item.IsModified {
 			err := t.Update(item)
 			if err != nil {
 				return err
 			}
-		} else {
-			_, err := t.Save(*item)
+		} else if item.Id == nil {
+			_, err := t.Insert(*item)
 			if err != nil {
 				return err
 			}
@@ -86,7 +91,7 @@ order by id`
 }
 
 //goland:noinspection SqlNoDataSourceInspection
-func (t todoRepository) Save(item todo.Item) (todo.ItemId, error) {
+func (t todoRepository) Insert(item todo.Item) (todo.ItemId, error) {
 	sql := `
 insert into todo_items
 	(title, isDone)

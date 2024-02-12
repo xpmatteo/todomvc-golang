@@ -23,7 +23,7 @@ func Test_saveAndFind(t *testing.T) {
 	repo := NewTodoRepository(db)
 	original := todo.Item{Title: "hello", IsDone: true}
 
-	newId, err := repo.Save(original)
+	newId, err := repo.Insert(original)
 	require.NoError(t, err)
 
 	actual, err := repo.FindList()
@@ -40,9 +40,9 @@ func Test_findAll(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	id0, err := repo.Save(todo.Item{Title: "first", IsDone: false})
+	id0, err := repo.Insert(todo.Item{Title: "first", IsDone: false})
 	require.NoError(t, err)
-	id1, err := repo.Save(todo.Item{Title: "second", IsDone: true})
+	id1, err := repo.Insert(todo.Item{Title: "second", IsDone: true})
 	require.NoError(t, err)
 
 	actual, err := repo.FindList()
@@ -61,9 +61,9 @@ func Test_destroy_ok(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	_, err := repo.Save(todo.Item{Title: "first", IsDone: false})
+	_, err := repo.Insert(todo.Item{Title: "first", IsDone: false})
 	require.NoError(t, err)
-	id1, err := repo.Save(todo.Item{Title: "second", IsDone: true})
+	id1, err := repo.Insert(todo.Item{Title: "second", IsDone: true})
 	require.NoError(t, err)
 
 	err = repo.Destroy(id1)
@@ -101,7 +101,7 @@ func Test_saveModifiedList_isDone(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	id, err := repo.Save(todo.Item{Title: "any", Id: todo.MustNewItemId("100")})
+	id, err := repo.Insert(todo.Item{Title: "any"})
 	require.NoError(t, err)
 	list, err := repo.FindList()
 	require.NoError(t, err)
@@ -123,13 +123,13 @@ func Test_saveModifiedList_editTitle(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	id, err := repo.Save(todo.Item{Title: "any", Id: todo.MustNewItemId("100")})
+	id, err := repo.Insert(todo.Item{Title: "any"})
 	require.NoError(t, err)
 	list, err := repo.FindList()
 	require.NoError(t, err)
+
 	err = list.Edit(id, "newTitle")
 	require.NoError(t, err)
-
 	err = repo.SaveList(list)
 	require.NoError(t, err)
 
@@ -139,6 +139,25 @@ func Test_saveModifiedList_editTitle(t *testing.T) {
 	assert.Equal(1, len(foundItems))
 	assert.Equal(id, foundItems[0].Id)
 	assert.Equal("newTitle", foundItems[0].Title)
+}
+
+func Test_saveModifiedList_destroyItem(t *testing.T) {
+	assert := assert.New(t)
+	db := initTestDb()
+	repo := NewTodoRepository(db)
+	id, err := repo.Insert(todo.Item{Title: "any"})
+	require.NoError(t, err)
+	list, err := repo.FindList()
+	require.NoError(t, err)
+
+	list.Destroy(id)
+	err = repo.SaveList(list)
+	require.NoError(t, err)
+
+	found, err := repo.FindList()
+	require.NoError(t, err)
+	foundItems := found.AllItems()
+	assert.Equal(0, len(foundItems))
 }
 
 //goland:noinspection SqlNoDataSourceInspection
