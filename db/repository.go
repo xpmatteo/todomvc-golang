@@ -39,7 +39,10 @@ func (t todoRepository) SaveList(list *todo.List) error {
 				return err
 			}
 		} else if item.Id == nil {
-			_, err := t.Insert(*item)
+			newId, err := t.Insert(*item)
+			// intentionally modifying the passed-in list, so that it can be shown
+			// correctly on the ui
+			item.Id = newId
 			if err != nil {
 				return err
 			}

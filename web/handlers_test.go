@@ -65,11 +65,12 @@ func Test_NewItemHandler_ok(t *testing.T) {
 	assert := assert.New(t)
 	w, r := postRequest("new-todo=foobar")
 	repository := db.FakeRepository()
+	var templ = template.Must(template.New("index").Parse("items: {{range $item := .Items}}{{$item.Id}}:{{$item.Title}},{{end}}"))
 
 	NewItemHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
-	assert.Equal("items: foobar,", w.Body.String())
+	assert.Equal("items: 0:foobar,", w.Body.String())
 	assert.Equal("foobar", repository.Items[0].Title)
 }
 

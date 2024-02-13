@@ -46,12 +46,12 @@ func (fr *FakeRepositoryImplementation) SaveList(list *todo.List) error {
 		if item.IsDestroyed {
 			continue
 		}
-		itemCopy := *item
+		// intentionally modifying the passed in list
 		if item.Id == nil {
-			itemCopy.Id = fr.newId()
+			item.Id = fr.newId()
 		}
-		itemCopy.IsModified = false
-		newItems = append(newItems, &itemCopy)
+		item.IsModified = false
+		newItems = append(newItems, item)
 	}
 	fr.Items = newItems
 	return nil

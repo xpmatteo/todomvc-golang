@@ -76,6 +76,9 @@ func Test_saveNewList(t *testing.T) {
 	assert.Equal("second", foundItems[1].Title)
 	assert.NotNil(foundItems[0].Id)
 	assert.NotNil(foundItems[1].Id)
+	// the passed-in list now has ids populated
+	assert.Equal(foundItems[0].Id, list.Items[0].Id)
+	assert.Equal(foundItems[1].Id, list.Items[1].Id)
 }
 
 func Test_saveModifiedList_isDone(t *testing.T) {
