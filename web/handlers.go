@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"log"
@@ -34,7 +35,6 @@ func IndexHandler(templ *template.Template, repo ListFinder) http.Handler {
 			internalServerError(w, err)
 			return
 		}
-		print(model.Items)
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
@@ -91,17 +91,13 @@ func EditHandler(templ *template.Template, repository Repository) http.Handler {
 		}
 		title := r.Form.Get(keyTodoItemTitle)
 
-		model, err := with(repository, func(model *todo.List) {
-			if len(title) == 0 {
-				model.Destroy(id)
-			} else {
-				err = model.Edit(id, title)
-				if err != nil {
-					badRequest(w, err)
-					return
-				}
-			}
+		model, err := with(repository, func(model *todo.List) error {
+			return model.Edit(id, title)
 		})
+		if errors.Is(err, todo.ErrorBadId) {
+			badRequest(w, err)
+			return
+		}
 		if err != nil {
 			internalServerError(w, err)
 			return
@@ -125,8 +121,8 @@ func DestroyHandler(templ *template.Template, repository Repository) http.Handle
 			return
 		}
 
-		model, err := with(repository, func(model *todo.List) {
-			model.Destroy(id)
+		model, err := with(repository, func(model *todo.List) error {
+			return model.Destroy(id)
 		})
 		if err != nil {
 			internalServerError(w, err)
@@ -138,13 +134,15 @@ func DestroyHandler(templ *template.Template, repository Repository) http.Handle
 	})
 }
 
-func with(repository Repository, f func(list *todo.List)) (*todo.List, error) {
+func with(repository Repository, f func(list *todo.List) error) (*todo.List, error) {
 	model, err := repository.FindList()
 	if err != nil {
 		return nil, err
 	}
 
-	f(model)
+	if err := f(model); err != nil {
+		return nil, err
+	}
 
 	if err := repository.SaveList(model); err != nil {
 		return nil, err

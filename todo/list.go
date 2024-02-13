@@ -4,6 +4,8 @@ import (
 	"errors"
 )
 
+var ErrorBadId = errors.New("bad todoItemId")
+
 type Item struct {
 	Title      string
 	IsDone     bool
@@ -44,7 +46,7 @@ func (l *List) AddCompleted(title string) {
 func (l *List) Toggle(id ItemId) error {
 	item, ok := l.find(id)
 	if !ok {
-		return errors.New("bad todo-item ID")
+		return ErrorBadId
 	}
 	item.IsDone = !item.IsDone
 	item.IsModified = true
@@ -54,7 +56,7 @@ func (l *List) Toggle(id ItemId) error {
 func (l *List) Edit(id ItemId, title string) error {
 	item, ok := l.find(id)
 	if !ok || item.IsDeleted {
-		return errors.New("bad todo-item ID")
+		return ErrorBadId
 	}
 	if len(title) == 0 {
 		item.IsDeleted = true
@@ -65,11 +67,12 @@ func (l *List) Edit(id ItemId, title string) error {
 	return nil
 }
 
-func (l *List) Destroy(id ItemId) {
+func (l *List) Destroy(id ItemId) error {
 	item, ok := l.find(id)
 	if ok {
 		item.IsDeleted = true
 	}
+	return nil
 }
 
 func (l *List) AllItems() []*Item {

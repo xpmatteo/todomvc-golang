@@ -19,14 +19,6 @@ var (
 	idTwo  = todo.MustNewItemId("2")
 )
 
-type ListFinderStub struct {
-	model *todo.List
-}
-
-func (l ListFinderStub) FindList() (*todo.List, error) {
-	return l.model, nil
-}
-
 func Test_indexHandler_ok(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
 	repository := db.FakeRepository().Add("item0").Add("item1")
@@ -91,6 +83,17 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("items: ", w.Body.String())
 	assert.Equal(0, len(repository.Items))
+}
+
+func Test_editHandler_elementNotFound(t *testing.T) {
+	assert := assert.New(t)
+	w, r := postRequest("todoItemId=123&todoItemTitle=changedTitle")
+	repository := db.FakeRepository()
+
+	EditHandler(templ, repository).ServeHTTP(w, r)
+
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("bad todoItemId\n", w.Body.String())
 }
 
 func Test_destroyHandler_ok(t *testing.T) {
