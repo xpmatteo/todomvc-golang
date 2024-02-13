@@ -18,7 +18,7 @@ func Test_AddItem_ok(t *testing.T) {
 
 	assert.Equal(t, 1, len(list.Items))
 	assert.Equal(t, "foobar", list.Items[0].Title)
-	assert.False(t, list.Items[0].IsDone, "new item should not be done")
+	assert.False(t, list.Items[0].IsCompleted, "new item should not be done")
 }
 
 func Test_AddItem_Validation(t *testing.T) {
@@ -40,7 +40,7 @@ func Test_edit_ok(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal("newTitle", list.Items[0].Title)
 	assert.Equal(true, list.Items[0].IsModified)
-	assert.Equal(false, list.Items[0].IsDeleted)
+	assert.Equal(false, list.Items[0].IsDestroyed)
 }
 
 func Test_edit_deletes(t *testing.T) {
@@ -52,7 +52,7 @@ func Test_edit_deletes(t *testing.T) {
 	err := list.Edit(id, "")
 
 	assert.NoError(err)
-	assert.Equal(true, list.Items[0].IsDeleted)
+	assert.Equal(true, list.Items[0].IsDestroyed)
 }
 
 func Test_edit_notExistent(t *testing.T) {
@@ -84,10 +84,10 @@ func Test_Toggle_OK(t *testing.T) {
 	list.Add1(&Item{Title: "bar", Id: MustNewItemId("200")})
 
 	_ = list.Toggle(MustNewItemId("200"))
-	assert.True(list.Items[1].IsDone, "after one toggle")
+	assert.True(list.Items[1].IsCompleted, "after one toggle")
 
 	_ = list.Toggle(MustNewItemId("200"))
-	assert.False(list.Items[1].IsDone, "after another toggle")
+	assert.False(list.Items[1].IsCompleted, "after another toggle")
 }
 
 func Test_Toggle_error(t *testing.T) {

@@ -7,11 +7,11 @@ import (
 var ErrorBadId = errors.New("bad todoItemId")
 
 type Item struct {
-	Title      string
-	IsDone     bool
-	Id         ItemId
-	IsDeleted  bool // help with persistence
-	IsModified bool // help with persistence
+	Title       string
+	IsCompleted bool
+	Id          ItemId
+	IsDestroyed bool // help with persistence
+	IsModified  bool // help with persistence
 }
 
 type List struct {
@@ -38,8 +38,8 @@ func (l *List) Add1(item *Item) {
 
 func (l *List) AddCompleted(title string) {
 	l.Add1(&Item{
-		Title:  title,
-		IsDone: true,
+		Title:       title,
+		IsCompleted: true,
 	})
 }
 
@@ -48,18 +48,18 @@ func (l *List) Toggle(id ItemId) error {
 	if !ok {
 		return ErrorBadId
 	}
-	item.IsDone = !item.IsDone
+	item.IsCompleted = !item.IsCompleted
 	item.IsModified = true
 	return nil
 }
 
 func (l *List) Edit(id ItemId, title string) error {
 	item, ok := l.find(id)
-	if !ok || item.IsDeleted {
+	if !ok || item.IsDestroyed {
 		return ErrorBadId
 	}
 	if len(title) == 0 {
-		item.IsDeleted = true
+		item.IsDestroyed = true
 	} else {
 		item.Title = title
 		item.IsModified = true
@@ -70,7 +70,7 @@ func (l *List) Edit(id ItemId, title string) error {
 func (l *List) Destroy(id ItemId) error {
 	item, ok := l.find(id)
 	if ok {
-		item.IsDeleted = true
+		item.IsDestroyed = true
 	}
 	return nil
 }
@@ -86,7 +86,7 @@ func (l *List) AllItems() []*Item {
 func (l *List) CompletedItems() []*Item {
 	var result []*Item
 	l.forEach(func(item *Item) {
-		if item.IsDone {
+		if item.IsCompleted {
 			result = append(result, item)
 		}
 	})
@@ -96,7 +96,7 @@ func (l *List) CompletedItems() []*Item {
 func (l *List) ActiveItems() []*Item {
 	var result []*Item
 	l.forEach(func(item *Item) {
-		if !item.IsDone {
+		if !item.IsCompleted {
 			result = append(result, item)
 		}
 	})
@@ -105,7 +105,7 @@ func (l *List) ActiveItems() []*Item {
 
 func (l *List) forEach(f func(*Item)) {
 	for _, item := range l.Items {
-		if item.IsDeleted {
+		if item.IsDestroyed {
 			continue
 		}
 		f(item)

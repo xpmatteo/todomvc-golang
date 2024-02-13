@@ -20,7 +20,7 @@ func (fr *FakeRepositoryImplementation) Add(title string) *FakeRepositoryImpleme
 }
 
 func (fr *FakeRepositoryImplementation) AddCompleted(title string) *FakeRepositoryImplementation {
-	_, _ = fr.Save(todo.Item{Title: title, IsDone: true})
+	_, _ = fr.Save(todo.Item{Title: title, IsCompleted: true})
 	return fr
 }
 
@@ -43,7 +43,7 @@ func (fr *FakeRepositoryImplementation) FindList() (*todo.List, error) {
 func (fr *FakeRepositoryImplementation) SaveList(list *todo.List) error {
 	var newItems []*todo.Item
 	for _, item := range list.Items {
-		if item.IsDeleted {
+		if item.IsDestroyed {
 			continue
 		}
 		itemCopy := *item

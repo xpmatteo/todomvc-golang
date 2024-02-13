@@ -8,20 +8,11 @@ import (
 	"testing"
 )
 
-//goland:noinspection SqlNoDataSourceInspection
-const createTable = `
-create table if not exists todo_items (
-    id INTEGER PRIMARY KEY,
-    title varchar(200),
-    isDone bool
-);
-`
-
 func Test_saveAndFind(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	original := todo.Item{Title: "hello", IsDone: true}
+	original := todo.Item{Title: "hello", IsCompleted: true}
 
 	newId := mustInsert(repo, &original)
 	actual := mustFindList(repo)
@@ -29,7 +20,7 @@ func Test_saveAndFind(t *testing.T) {
 	foundItems := actual.AllItems()
 	assert.Equal(1, len(foundItems))
 	assert.Equal(original.Title, foundItems[0].Title)
-	assert.Equal(original.IsDone, foundItems[0].IsDone)
+	assert.Equal(original.IsCompleted, foundItems[0].IsCompleted)
 	assert.Equal(newId, foundItems[0].Id)
 }
 
@@ -37,8 +28,8 @@ func Test_findAll(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := NewTodoRepository(db)
-	id0 := mustInsert(repo, &todo.Item{Title: "first", IsDone: false})
-	id1 := mustInsert(repo, &todo.Item{Title: "second", IsDone: true})
+	id0 := mustInsert(repo, &todo.Item{Title: "first", IsCompleted: false})
+	id1 := mustInsert(repo, &todo.Item{Title: "second", IsCompleted: true})
 
 	actual := mustFindList(repo)
 
@@ -46,8 +37,8 @@ func Test_findAll(t *testing.T) {
 	assert.Equal(2, len(all))
 	assert.Equal("first", all[0].Title)
 	assert.Equal("second", all[1].Title)
-	assert.Equal(false, all[0].IsDone)
-	assert.Equal(true, all[1].IsDone)
+	assert.Equal(false, all[0].IsCompleted)
+	assert.Equal(true, all[1].IsCompleted)
 	assert.Equal(id0, all[0].Id)
 	assert.Equal(id1, all[1].Id)
 }
@@ -56,8 +47,8 @@ func Test_destroy_ok(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
 	repo := todoRepository{db}
-	_ = mustInsert(repo, &todo.Item{Title: "first", IsDone: false})
-	id1 := mustInsert(repo, &todo.Item{Title: "second", IsDone: true})
+	_ = mustInsert(repo, &todo.Item{Title: "first", IsCompleted: false})
+	id1 := mustInsert(repo, &todo.Item{Title: "second", IsCompleted: true})
 
 	err := repo.Destroy(id1)
 	require.NoError(t, err)
@@ -103,7 +94,7 @@ func Test_saveModifiedList_isDone(t *testing.T) {
 	foundItems := found.AllItems()
 	assert.Equal(1, len(foundItems))
 	assert.Equal(id, foundItems[0].Id)
-	assert.Equal(true, foundItems[0].IsDone)
+	assert.Equal(true, foundItems[0].IsCompleted)
 }
 
 func Test_saveModifiedList_editTitle(t *testing.T) {
@@ -145,7 +136,7 @@ func initTestDb() *sql.DB {
 		panic(err.Error())
 	}
 	mustExec(db, "drop table if exists todo_items")
-	mustExec(db, createTable)
+	mustExec(db, CreateTableSQL)
 	return db
 }
 

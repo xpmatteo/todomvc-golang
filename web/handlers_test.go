@@ -118,7 +118,7 @@ func Test_toggleHandler_ok(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("items: zero,one,two,", w.Body.String())
 	list, _ := repository.FindList()
-	assert.Equal(true, list.Items[1].IsDone)
+	assert.Equal(true, list.Items[1].IsCompleted)
 }
 
 func Test_destroyHandler_ok(t *testing.T) {
