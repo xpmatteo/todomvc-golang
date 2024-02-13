@@ -18,8 +18,8 @@ type ListFinder interface {
 	FindList() (*todo.List, error)
 }
 
-type Destroyer interface {
-	Destroy(id todo.ItemId) error
+type ListSaver interface {
+	SaveList(*todo.List) error
 }
 
 func IndexHandler(templ *template.Template, repo ListFinder) http.Handler {
@@ -76,14 +76,18 @@ func ToggleHandler(templ *template.Template, model *todo.List) http.Handler {
 	})
 }
 
-func EditHandler(templ *template.Template, model *todo.List) http.Handler {
+func EditHandler(templ *template.Template, finder ListFinder, saver ListSaver) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			badRequest(w, err)
 			return
 		}
-
+		model, err := finder.FindList()
+		if err != nil {
+			internalServerError(w, err)
+			return
+		}
 		id, err := todo.NewItemId(r.Form.Get(keyTodoItemId))
 		if err != nil {
 			badRequest(w, err)
@@ -100,12 +104,17 @@ func EditHandler(templ *template.Template, model *todo.List) http.Handler {
 			}
 		}
 
+		err = saver.SaveList(model)
+		if err != nil {
+			internalServerError(w, err)
+			return
+		}
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
 }
 
-func DestroyHandler(templ *template.Template, finder ListFinder, destroyer Destroyer) http.Handler {
+func DestroyHandler(templ *template.Template, finder ListFinder, saver ListSaver) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -117,14 +126,15 @@ func DestroyHandler(templ *template.Template, finder ListFinder, destroyer Destr
 			badRequest(w, err)
 			return
 		}
-
-		if err := destroyer.Destroy(id); err != nil {
+		model, err := finder.FindList()
+		if err != nil {
 			internalServerError(w, err)
 			return
 		}
 
-		model, err := finder.FindList()
-		if err != nil {
+		model.Destroy(id)
+
+		if err := saver.SaveList(model); err != nil {
 			internalServerError(w, err)
 			return
 		}

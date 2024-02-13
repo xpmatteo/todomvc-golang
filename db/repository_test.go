@@ -55,7 +55,7 @@ func Test_findAll(t *testing.T) {
 func Test_destroy_ok(t *testing.T) {
 	assert := assert.New(t)
 	db := initTestDb()
-	repo := NewTodoRepository(db)
+	repo := todoRepository{db}
 	_ = mustInsert(repo, &todo.Item{Title: "first", IsDone: false})
 	id1 := mustInsert(repo, &todo.Item{Title: "second", IsDone: true})
 

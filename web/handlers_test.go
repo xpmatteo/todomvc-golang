@@ -39,9 +39,9 @@ func Test_indexHandler_ok(t *testing.T) {
 
 func Test_indexHandler_unexpectedPath(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/foo", nil)
-	testFinder := ListFinderStub{todo.NewList()}
+	repository := db.FakeRepository()
 
-	IndexHandler(templ, testFinder).ServeHTTP(w, r)
+	IndexHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(t, 404, w.Code)
 	assert.Equal(t, "Not found\n", w.Body.String())
@@ -50,9 +50,9 @@ func Test_indexHandler_unexpectedPath(t *testing.T) {
 func Test_indexHandler_editItem(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?edit=3", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
-	testFinder := ListFinderStub{todo.NewList()}
+	repository := db.FakeRepository()
 
-	IndexHandler(templ, testFinder).ServeHTTP(w, r)
+	IndexHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p>3</p>", w.Body.String())
@@ -61,9 +61,9 @@ func Test_indexHandler_editItem(t *testing.T) {
 func Test_indexHandler_editItemNotPassed(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))
-	testFinder := ListFinderStub{todo.NewList()}
+	repository := db.FakeRepository()
 
-	IndexHandler(templ, testFinder).ServeHTTP(w, r)
+	IndexHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "<p></p>", w.Body.String())
@@ -72,30 +72,25 @@ func Test_indexHandler_editItemNotPassed(t *testing.T) {
 func Test_editHandler_ok(t *testing.T) {
 	assert := assert.New(t)
 	w, r := postRequest("todoItemId=0&todoItemTitle=changedTitle")
-	model := todo.NewList()
-	model.Add("foo", idZero)
-	templ := template.Must(template.New("index").Parse("<p>{{len .Items}}</p>"))
+	repository := db.FakeRepository().Add("foo")
 
-	EditHandler(templ, model).ServeHTTP(w, r)
+	EditHandler(templ, repository, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
-	assert.Equal("<p>1</p>", w.Body.String())
-	assert.Equal("changedTitle", model.Items[0].Title)
-	assert.Equal(true, model.Items[0].IsModified)
+	assert.Equal("items: changedTitle,", w.Body.String())
+	assert.Equal("changedTitle", repository.Items[0].Title)
 }
 
 func Test_editHandler_textIsEmpty(t *testing.T) {
 	assert := assert.New(t)
 	w, r := postRequest("todoItemId=0&todoItemTitle=")
+	repository := db.FakeRepository().Add("foo")
 
-	model := todo.NewList()
-	model.Add("foo", idZero)
-
-	EditHandler(templ, model).ServeHTTP(w, r)
+	EditHandler(templ, repository, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("items: ", w.Body.String())
-	assert.Equal(0, len(model.AllItems()))
+	assert.Equal(0, len(repository.Items))
 }
 
 func Test_destroyHandler_ok(t *testing.T) {

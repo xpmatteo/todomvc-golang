@@ -19,7 +19,6 @@ create table if not exists todo_items (
 type TodoRepository interface {
 	Insert(item todo.Item) (todo.ItemId, error)
 	FindList() (*todo.List, error)
-	Destroy(id todo.ItemId) error
 	SaveList(list *todo.List) error
 }
 

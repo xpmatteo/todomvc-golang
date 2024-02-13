@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+type FakeRepositoryImplementation struct {
+	Items  []*todo.Item
+	nextId int
+}
+
 func FakeRepository() *FakeRepositoryImplementation {
 	return &FakeRepositoryImplementation{}
 }
@@ -19,34 +24,48 @@ func (fr *FakeRepositoryImplementation) AddCompleted(title string) *FakeReposito
 	return fr
 }
 
-type FakeRepositoryImplementation struct {
-	items  []*todo.Item
-	nextId int
-}
-
 func (fr *FakeRepositoryImplementation) Save(item todo.Item) (todo.ItemId, error) {
 	newId := todo.MustNewItemId(strconv.Itoa(fr.nextId))
 	item.Id = newId
-	fr.items = append(fr.items, &item)
+	fr.Items = append(fr.Items, &item)
 	fr.nextId++
 	return newId, nil
 }
 
 func (fr *FakeRepositoryImplementation) FindList() (*todo.List, error) {
 	result := todo.NewList()
-	for _, item := range fr.items {
+	for _, item := range fr.Items {
 		result.Add1(item)
 	}
 	return result, nil
 }
 
+func (fr *FakeRepositoryImplementation) SaveList(list *todo.List) error {
+	var newItems []*todo.Item
+	for _, item := range list.Items {
+		if item.IsDeleted {
+			continue
+		}
+		itemCopy := *item
+		if item.Id == nil {
+			newId := todo.MustNewItemId(strconv.Itoa(fr.nextId))
+			itemCopy.Id = newId
+			fr.nextId++
+		}
+		itemCopy.IsModified = false
+		newItems = append(newItems, &itemCopy)
+	}
+	fr.Items = newItems
+	return nil
+}
+
 func (fr *FakeRepositoryImplementation) Destroy(id todo.ItemId) error {
 	var newItems []*todo.Item
-	for _, item := range fr.items {
+	for _, item := range fr.Items {
 		if item.Id != id {
 			newItems = append(newItems, item)
 		}
 	}
-	fr.items = newItems
+	fr.Items = newItems
 	return nil
 }
