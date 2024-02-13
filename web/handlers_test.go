@@ -108,6 +108,19 @@ func Test_editHandler_elementNotFound(t *testing.T) {
 	assert.Equal("bad todoItemId\n", w.Body.String())
 }
 
+func Test_toggleHandler_ok(t *testing.T) {
+	assert := assert.New(t)
+	repository := db.FakeRepository().Add("zero").Add("one").Add("two")
+	w, r := postRequest("todoItemId=1")
+
+	ToggleHandler(templ, repository).ServeHTTP(w, r)
+
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("items: zero,one,two,", w.Body.String())
+	list, _ := repository.FindList()
+	assert.Equal(true, list.Items[1].IsDone)
+}
+
 func Test_destroyHandler_ok(t *testing.T) {
 	assert := assert.New(t)
 	repository := db.FakeRepository().Add("zero").Add("one").Add("two")

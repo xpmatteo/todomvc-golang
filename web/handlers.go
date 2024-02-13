@@ -67,7 +67,7 @@ func NewItemHandler(templ *template.Template, repository Repository) http.Handle
 	})
 }
 
-func ToggleHandler(templ *template.Template, model *todo.List) http.Handler {
+func ToggleHandler(templ *template.Template, repository Repository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -80,12 +80,17 @@ func ToggleHandler(templ *template.Template, model *todo.List) http.Handler {
 			badRequest(w, err)
 			return
 		}
-		err = model.Toggle(id)
-		if err != nil {
+		model, err := with(repository, func(model *todo.List) error {
+			return model.Toggle(id)
+		})
+		if errors.Is(err, todo.ErrorBadId) {
 			badRequest(w, err)
 			return
 		}
-
+		if err != nil {
+			internalServerError(w, err)
+			return
+		}
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})

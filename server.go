@@ -47,7 +47,7 @@ func main() {
 		web.Metrics("toggle",
 			web.Logging(
 				web.POSTonly(
-					web.ToggleHandler(templ, model)))))
+					web.ToggleHandler(templ, repository)))))
 	http.Handle("/edit",
 		web.Metrics("edit",
 			web.Logging(
