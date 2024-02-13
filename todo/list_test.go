@@ -29,6 +29,54 @@ func Test_AddItem_Validation(t *testing.T) {
 	assert.Equal(t, 0, len(list.Items), "empty items not allowed")
 }
 
+func Test_edit_ok(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	id := MustNewItemId("111")
+	list.Add("foo", id)
+
+	err := list.Edit(id, "newTitle")
+
+	assert.NoError(err)
+	assert.Equal("newTitle", list.Items[0].Title)
+	assert.Equal(true, list.Items[0].IsModified)
+	assert.Equal(false, list.Items[0].IsDeleted)
+}
+
+func Test_edit_deletes(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	id := MustNewItemId("111")
+	list.Add("foo", id)
+
+	err := list.Edit(id, "")
+
+	assert.NoError(err)
+	assert.Equal(true, list.Items[0].IsDeleted)
+}
+
+func Test_edit_notExistent(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	id := MustNewItemId("111")
+	list.Add("foo", id)
+	list.Destroy(id)
+
+	err := list.Edit(id, "new title")
+
+	assert.Error(err)
+}
+
+func Test_edit_destroyedItem(t *testing.T) {
+	assert := assert.New(t)
+	list := NewList()
+	id := MustNewItemId("111")
+
+	err := list.Edit(id, "new title")
+
+	assert.Error(err)
+}
+
 func Test_Toggle_OK(t *testing.T) {
 	assert := assert.New(t)
 	list := NewList()

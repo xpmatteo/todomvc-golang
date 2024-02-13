@@ -106,7 +106,7 @@ func EditHandler(templ *template.Template, repository Repository) http.Handler {
 			internalServerError(w, err)
 			return
 		}
-		
+
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})

@@ -32,6 +32,7 @@ Still to be done:
   * Add indicators to all operations
   * Disable elements while an operation is in progress
 * TodoMVC
+  * trim whitespace
   * Clear completed
   * Toggle all
   * Persistence

@@ -53,11 +53,15 @@ func (l *List) Toggle(id ItemId) error {
 
 func (l *List) Edit(id ItemId, title string) error {
 	item, ok := l.find(id)
-	if !ok {
+	if !ok || item.IsDeleted {
 		return errors.New("bad todo-item ID")
 	}
-	item.Title = title
-	item.IsModified = true
+	if len(title) == 0 {
+		item.IsDeleted = true
+	} else {
+		item.Title = title
+		item.IsModified = true
+	}
 	return nil
 }
 
