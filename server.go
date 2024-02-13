@@ -42,7 +42,7 @@ func main() {
 			web.Logging(
 				web.POSTonly(
 					web.Slowdown(1000,
-						web.NewItemHandler(templ, model))))))
+						web.NewItemHandler(templ, repository))))))
 	http.Handle("/toggle",
 		web.Metrics("toggle",
 			web.Logging(

@@ -61,6 +61,18 @@ func Test_indexHandler_editItemNotPassed(t *testing.T) {
 	assert.Equal(t, "<p></p>", w.Body.String())
 }
 
+func Test_NewItemHandler_ok(t *testing.T) {
+	assert := assert.New(t)
+	w, r := postRequest("new-todo=foobar")
+	repository := db.FakeRepository()
+
+	NewItemHandler(templ, repository).ServeHTTP(w, r)
+
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("items: foobar,", w.Body.String())
+	assert.Equal("foobar", repository.Items[0].Title)
+}
+
 func Test_editHandler_ok(t *testing.T) {
 	assert := assert.New(t)
 	w, r := postRequest("todoItemId=0&todoItemTitle=changedTitle")

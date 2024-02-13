@@ -40,14 +40,28 @@ func IndexHandler(templ *template.Template, repo ListFinder) http.Handler {
 	})
 }
 
-func NewItemHandler(templ *template.Template, model *todo.List) http.Handler {
+func NewItemHandler(templ *template.Template, repository Repository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			badRequest(w, err)
 			return
 		}
-		model.Add(r.Form.Get("new-todo"), nil)
+
+		title := r.Form.Get("new-todo")
+		model, err := with(repository, func(model *todo.List) error {
+			model.Add(title, nil)
+			return nil
+		})
+		if errors.Is(err, todo.ErrorBadId) {
+			badRequest(w, err)
+			return
+		}
+		if err != nil {
+			internalServerError(w, err)
+			return
+		}
+
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
