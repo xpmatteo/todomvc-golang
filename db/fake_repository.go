@@ -48,15 +48,19 @@ func (fr *FakeRepositoryImplementation) SaveList(list *todo.List) error {
 		}
 		itemCopy := *item
 		if item.Id == nil {
-			newId := todo.MustNewItemId(strconv.Itoa(fr.nextId))
-			itemCopy.Id = newId
-			fr.nextId++
+			itemCopy.Id = fr.newId()
 		}
 		itemCopy.IsModified = false
 		newItems = append(newItems, &itemCopy)
 	}
 	fr.Items = newItems
 	return nil
+}
+
+func (fr *FakeRepositoryImplementation) newId() todo.ItemId {
+	newId := todo.MustNewItemId(strconv.Itoa(fr.nextId))
+	fr.nextId++
+	return newId
 }
 
 func (fr *FakeRepositoryImplementation) Destroy(id todo.ItemId) error {
@@ -67,5 +71,12 @@ func (fr *FakeRepositoryImplementation) Destroy(id todo.ItemId) error {
 		}
 	}
 	fr.Items = newItems
+	return nil
+}
+
+func (fr *FakeRepositoryImplementation) Insert(item todo.Item) error {
+	newItem := item
+	newItem.Id = fr.newId()
+	fr.Items = append(fr.Items, &newItem)
 	return nil
 }
