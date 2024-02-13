@@ -18,7 +18,8 @@ type ListFinder interface {
 	FindList() (*todo.List, error)
 }
 
-type ListSaver interface {
+type Repository interface {
+	FindList() (*todo.List, error)
 	SaveList(*todo.List) error
 }
 
@@ -76,16 +77,11 @@ func ToggleHandler(templ *template.Template, model *todo.List) http.Handler {
 	})
 }
 
-func EditHandler(templ *template.Template, finder ListFinder, saver ListSaver) http.Handler {
+func EditHandler(templ *template.Template, repository Repository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			badRequest(w, err)
-			return
-		}
-		model, err := finder.FindList()
-		if err != nil {
-			internalServerError(w, err)
 			return
 		}
 		id, err := todo.NewItemId(r.Form.Get(keyTodoItemId))
@@ -94,27 +90,29 @@ func EditHandler(templ *template.Template, finder ListFinder, saver ListSaver) h
 			return
 		}
 		title := r.Form.Get(keyTodoItemTitle)
-		if len(title) == 0 {
-			model.Destroy(id)
-		} else {
-			err = model.Edit(id, title)
-			if err != nil {
-				badRequest(w, err)
-				return
-			}
-		}
 
-		err = saver.SaveList(model)
+		model, err := with(repository, func(model *todo.List) {
+			if len(title) == 0 {
+				model.Destroy(id)
+			} else {
+				err = model.Edit(id, title)
+				if err != nil {
+					badRequest(w, err)
+					return
+				}
+			}
+		})
 		if err != nil {
 			internalServerError(w, err)
 			return
 		}
+		
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
 }
 
-func DestroyHandler(templ *template.Template, finder ListFinder, saver ListSaver) http.Handler {
+func DestroyHandler(templ *template.Template, repository Repository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -126,21 +124,32 @@ func DestroyHandler(templ *template.Template, finder ListFinder, saver ListSaver
 			badRequest(w, err)
 			return
 		}
-		model, err := finder.FindList()
+
+		model, err := with(repository, func(model *todo.List) {
+			model.Destroy(id)
+		})
 		if err != nil {
 			internalServerError(w, err)
 			return
 		}
 
-		model.Destroy(id)
-
-		if err := saver.SaveList(model); err != nil {
-			internalServerError(w, err)
-			return
-		}
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
+}
+
+func with(repository Repository, f func(list *todo.List)) (*todo.List, error) {
+	model, err := repository.FindList()
+	if err != nil {
+		return nil, err
+	}
+
+	f(model)
+
+	if err := repository.SaveList(model); err != nil {
+		return nil, err
+	}
+	return model, nil
 }
 
 func internalServerError(w http.ResponseWriter, err error) {

@@ -35,8 +35,9 @@ Still to be done:
   * Clear completed
   * Toggle all
   * Persistence
-		* Save should receive a pointer?
 * Make static assets cacheable by the client
+* Configure the app through a config file
+* Export health/readiness checks
 
 ## Credit
 

@@ -52,12 +52,12 @@ func main() {
 		web.Metrics("edit",
 			web.Logging(
 				web.POSTonly(
-					web.EditHandler(templ, repository, repository)))))
+					web.EditHandler(templ, repository)))))
 	http.Handle("/destroy",
 		web.Metrics("destroy",
 			web.Logging(
 				web.POSTonly(
-					web.DestroyHandler(templ, repository, repository)))))
+					web.DestroyHandler(templ, repository)))))
 
 	http.Handle("/metrics", promhttp.Handler())
 

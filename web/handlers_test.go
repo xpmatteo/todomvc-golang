@@ -74,7 +74,7 @@ func Test_editHandler_ok(t *testing.T) {
 	w, r := postRequest("todoItemId=0&todoItemTitle=changedTitle")
 	repository := db.FakeRepository().Add("foo")
 
-	EditHandler(templ, repository, repository).ServeHTTP(w, r)
+	EditHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("items: changedTitle,", w.Body.String())
@@ -86,7 +86,7 @@ func Test_editHandler_textIsEmpty(t *testing.T) {
 	w, r := postRequest("todoItemId=0&todoItemTitle=")
 	repository := db.FakeRepository().Add("foo")
 
-	EditHandler(templ, repository, repository).ServeHTTP(w, r)
+	EditHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("items: ", w.Body.String())
@@ -98,7 +98,7 @@ func Test_destroyHandler_ok(t *testing.T) {
 	repository := db.FakeRepository().Add("zero").Add("one").Add("two")
 	w, r := postRequest("todoItemId=1")
 
-	DestroyHandler(templ, repository, repository).ServeHTTP(w, r)
+	DestroyHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("items: zero,two,", w.Body.String())
