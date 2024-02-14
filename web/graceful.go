@@ -28,6 +28,7 @@ func GracefulListenAndServe(addr string, handler http.Handler) {
 		<-sigint
 
 		// We received an interrupt signal, shut down.
+		log.Print("Interrupt received")
 		if err := server.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
 			log.Printf("HTTP server Shutdown: %v", err)
@@ -42,4 +43,5 @@ func GracefulListenAndServe(addr string, handler http.Handler) {
 	}
 
 	<-idleConnsClosed
+	log.Print("Exited gracefully")
 }
