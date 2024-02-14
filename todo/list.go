@@ -1,10 +1,14 @@
 package todo
 
-import (
-	"errors"
-)
+type UserError struct {
+	message string
+}
 
-var ErrorBadId = errors.New("bad todoItemId")
+var ErrorBadId = &UserError{"bad todoItemId"}
+
+func (ue *UserError) Error() string {
+	return ue.message
+}
 
 type Item struct {
 	Title       string

@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"log"
@@ -53,12 +52,8 @@ func NewItemHandler(templ *template.Template, repository Repository) http.Handle
 			model.Add(title, nil)
 			return nil
 		})
-		if errors.Is(err, todo.ErrorBadId) {
-			badRequest(w, err)
-			return
-		}
 		if err != nil {
-			internalServerError(w, err)
+			handleError(w, err)
 			return
 		}
 
@@ -83,17 +78,23 @@ func ToggleHandler(templ *template.Template, repository Repository) http.Handler
 		model, err := with(repository, func(model *todo.List) error {
 			return model.Toggle(id)
 		})
-		if errors.Is(err, todo.ErrorBadId) {
-			badRequest(w, err)
-			return
-		}
 		if err != nil {
-			internalServerError(w, err)
+			handleError(w, err)
 			return
 		}
 		vm := viewModel(model, r)
 		render(w, r, templ, vm)
 	})
+}
+
+//goland:noinspection GoTypeAssertionOnErrors
+func handleError(w http.ResponseWriter, err error) {
+	switch err.(type) {
+	case *todo.UserError:
+		badRequest(w, err)
+	default:
+		internalServerError(w, err)
+	}
 }
 
 func EditHandler(templ *template.Template, repository Repository) http.Handler {
@@ -113,12 +114,8 @@ func EditHandler(templ *template.Template, repository Repository) http.Handler {
 		model, err := with(repository, func(model *todo.List) error {
 			return model.Edit(id, title)
 		})
-		if errors.Is(err, todo.ErrorBadId) {
-			badRequest(w, err)
-			return
-		}
 		if err != nil {
-			internalServerError(w, err)
+			handleError(w, err)
 			return
 		}
 
@@ -144,7 +141,7 @@ func DestroyHandler(templ *template.Template, repository Repository) http.Handle
 			return model.Destroy(id)
 		})
 		if err != nil {
-			internalServerError(w, err)
+			handleError(w, err)
 			return
 		}
 
