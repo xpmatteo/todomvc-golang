@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"github.com/dlmiddlecote/sqlstats"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/xpmatteo/todomvc-golang/db"
 	"github.com/xpmatteo/todomvc-golang/web"
@@ -27,6 +29,10 @@ func main() {
 		panic(err.Error())
 	}
 	repository := db.NewTodoRepository(pool)
+
+	// publish DB stats with Prometheus
+	collector := sqlstats.NewStatsCollector("todo_db", pool)
+	prometheus.MustRegister(collector)
 
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	http.Handle("/",

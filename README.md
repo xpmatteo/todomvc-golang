@@ -35,7 +35,7 @@ Still to be done:
   * trim whitespace
   * Clear completed
   * Toggle all
-  * Persistence
+* Management of sql migrations
 * Make static assets cacheable by the client
 * Configure the app through a config file
 * Export health/readiness checks
