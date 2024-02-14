@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"log"
@@ -87,12 +88,10 @@ func ToggleHandler(templ *template.Template, repository Repository) http.Handler
 	})
 }
 
-//goland:noinspection GoTypeAssertionOnErrors
 func handleError(w http.ResponseWriter, err error) {
-	switch err.(type) {
-	case *todo.UserError:
+	if errors.Is(err, todo.UserError) {
 		badRequest(w, err)
-	default:
+	} else {
 		internalServerError(w, err)
 	}
 }

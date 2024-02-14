@@ -106,7 +106,7 @@ func Test_editHandler_elementNotFound(t *testing.T) {
 	EditHandler(templ, repository).ServeHTTP(w, r)
 
 	assert.Equal(http.StatusBadRequest, w.Code)
-	assert.Equal("bad todoItemId\n", w.Body.String())
+	assert.Equal("user error: bad todoItemId\n", w.Body.String())
 }
 
 func Test_toggleHandler_ok(t *testing.T) {
