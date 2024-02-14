@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/xpmatteo/todomvc-golang/db"
-	"github.com/xpmatteo/todomvc-golang/todo"
 	"github.com/xpmatteo/todomvc-golang/web"
 	"html/template"
 	"log"
@@ -14,8 +13,6 @@ import (
 )
 
 const port = "8080"
-
-var model = todo.NewList()
 
 func main() {
 	pool, err := sql.Open("sqlite", "development.db")

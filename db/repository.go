@@ -40,12 +40,12 @@ func (t todoRepository) SaveList(list *todo.List) error {
 			}
 		} else if item.Id == nil {
 			newId, err := t.Insert(*item)
-			// intentionally modifying the passed-in list, so that it can be shown
-			// correctly on the ui
-			item.Id = newId
 			if err != nil {
 				return err
 			}
+			// intentionally modify the passed-in list, so that it can be
+			// correctly shown and manipulated on the ui
+			item.Id = newId
 		}
 	}
 	return nil
@@ -94,15 +94,12 @@ order by id`
 
 //goland:noinspection SqlNoDataSourceInspection
 func (t todoRepository) Insert(item todo.Item) (todo.ItemId, error) {
-	sql := `
+	insertSql := `
 insert into todo_items
 	(title, isCompleted)
 values (?, ?)`
-	//tx, err := t.db.Begin()
-	//if err != nil {
-	//	return nil, err
-	//}
-	result, err := t.db.Exec(sql, item.Title, item.IsCompleted)
+
+	result, err := t.db.Exec(insertSql, item.Title, item.IsCompleted)
 	if err != nil {
 		return nil, err
 	}
@@ -110,11 +107,6 @@ values (?, ?)`
 	if err != nil {
 		return nil, err
 	}
-
-	//if err := tx.Commit(); err != nil {
-	//	return nil, err
-	//}
-
 	newId, err := todo.NewItemId(strconv.FormatInt(id, 10))
 	if err != nil {
 		return nil, err
