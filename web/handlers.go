@@ -26,10 +26,6 @@ type Repository interface {
 
 func IndexHandler(templ *template.Template, repo ListFinder) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" && r.URL.Path != pathActive && r.URL.Path != pathCompleted {
-			http.Error(w, "Not found", http.StatusNotFound)
-			return
-		}
 		model, err := repo.FindList()
 		if err != nil {
 			internalServerError(w, err)

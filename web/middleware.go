@@ -9,30 +9,6 @@ import (
 	"time"
 )
 
-func GETonly(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		} else {
-			h.ServeHTTP(w, r)
-		}
-	})
-}
-
-func POSTonly(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		} else {
-			h.ServeHTTP(w, r)
-		}
-	})
-}
-
-func GET(pattern string, handler http.Handler) {
-	http.Handle(pattern, GETonly(handler))
-}
-
 func Logging(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h.ServeHTTP(w, r)

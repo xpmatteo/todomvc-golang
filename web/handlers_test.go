@@ -29,16 +29,6 @@ func Test_indexHandler_ok(t *testing.T) {
 	assert.Equal(t, "items: item0,item1,", w.Body.String())
 }
 
-func Test_indexHandler_unexpectedPath(t *testing.T) {
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/foo", nil)
-	repository := db.FakeRepository()
-
-	IndexHandler(templ, repository).ServeHTTP(w, r)
-
-	assert.Equal(t, 404, w.Code)
-	assert.Equal(t, "Not found\n", w.Body.String())
-}
-
 func Test_indexHandler_editItem(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?edit=3", nil)
 	templ := template.Must(template.New("index").Parse("<p>{{.EditingItemId}}</p>"))

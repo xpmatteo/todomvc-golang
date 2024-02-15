@@ -34,40 +34,45 @@ func main() {
 	collector := sqlstats.NewStatsCollector("todo_db", pool)
 	prometheus.MustRegister(collector)
 
+	// I have to use a new ServeMux because the default mux is polluted by
+	// expvar, a package that I have no idea how it gets included in the project.
+	// Problem is that expvar declares a route for "/debug/vars" that (for mysterious reasons)
+	// conflicts with the route "/"
+	mux := http.NewServeMux()
 	templ := template.Must(template.ParseFiles("templates/index.html"))
-	http.Handle("/",
+	mux.Handle("GET /{$}",
 		web.Metrics("index",
 			web.Logging(
-				web.GETonly(
-					web.IndexHandler(templ, repository)))))
-	http.Handle("/new-todo",
+				web.IndexHandler(templ, repository))))
+	mux.Handle("GET /active",
+		web.Metrics("active",
+			web.Logging(
+				web.IndexHandler(templ, repository))))
+	mux.Handle("GET /completed",
+		web.Metrics("completed",
+			web.Logging(
+				web.IndexHandler(templ, repository))))
+	mux.Handle("POST /new-todo",
 		web.Metrics("new-todo",
 			web.Logging(
-				web.POSTonly(
-					web.Slowdown(1000,
-						web.NewItemHandler(templ, repository))))))
-	http.Handle("/toggle",
+				web.Slowdown(1000,
+					web.NewItemHandler(templ, repository)))))
+	mux.Handle("POST /toggle",
 		web.Metrics("toggle",
 			web.Logging(
-				web.POSTonly(
-					web.ToggleHandler(templ, repository)))))
-	http.Handle("/edit",
+				web.ToggleHandler(templ, repository))))
+	mux.Handle("POST /edit",
 		web.Metrics("edit",
 			web.Logging(
-				web.POSTonly(
-					web.EditHandler(templ, repository)))))
-	http.Handle("/destroy",
+				web.EditHandler(templ, repository))))
+	mux.Handle("POST /destroy",
 		web.Metrics("destroy",
 			web.Logging(
-				web.POSTonly(
-					web.DestroyHandler(templ, repository)))))
+				web.DestroyHandler(templ, repository))))
 
-	http.Handle("/metrics", promhttp.Handler())
-
-	web.GET("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./public/img"))))
-	web.GET("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./public/css"))))
-	web.GET("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./public/js"))))
+	mux.Handle("GET /metrics", promhttp.Handler())
+	mux.Handle("GET /", http.FileServer(http.Dir("./public/")))
 
 	log.Println("Listening on port " + port)
-	web.GracefulListenAndServe(":"+port, nil)
+	web.GracefulListenAndServe(":"+port, mux)
 }
