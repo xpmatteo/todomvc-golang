@@ -36,8 +36,8 @@ func main() {
 
 	// I have to use a new ServeMux because the default mux is polluted by
 	// expvar, a package that I have no idea how it gets included in the project.
-	// Problem is that expvar declares a route for "/debug/vars" that (for mysterious reasons)
-	// conflicts with the route "/"
+	// Problem is that expvar declares a route for "/debug/vars" that
+	// conflicts with the route "/", pending a bugfix in go 1.22.*
 	mux := http.NewServeMux()
 	templ := template.Must(template.ParseFiles("templates/index.html"))
 	mux.Handle("GET /{$}",
