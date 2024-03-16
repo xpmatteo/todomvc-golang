@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/xpmatteo/todomvc-golang/todo"
 	"html/template"
 	"io"
@@ -35,7 +36,7 @@ func Test_todoItemsAreShown(t *testing.T) {
 
 	assertWellFormedHTML(t, buf)
 	document := parseHtml(t, buf)
-	assert.Equal(t, 2, document.Find("ul.todo-list li").Length())
+	require.Equal(t, 2, document.Find("ul.todo-list li").Length())
 	assert.Equal(t, "Foo", strings.TrimSpace(document.Find("ul.todo-list li:nth-of-type(1)").Text()))
 	assert.Equal(t, "Bar", strings.TrimSpace(document.Find("ul.todo-list li:nth-of-type(2)").Text()))
 }
@@ -52,8 +53,23 @@ func Test_completedItemsGetCompletedClass(t *testing.T) {
 	assertWellFormedHTML(t, buf)
 	document := parseHtml(t, buf)
 	selection := document.Find("ul.todo-list li.completed")
-	assert.Equal(t, 1, selection.Length())
+	require.Equal(t, 1, selection.Length())
 	assert.Equal(t, "Bar", strings.TrimSpace(selection.Text()))
+}
+
+func Test_editingItems(t *testing.T) {
+	templ := template.Must(template.ParseFiles("../templates/index.html"))
+	list := todo.NewList()
+	list.Add("Foo", todo.MustNewItemId("22"))
+	model := viewModel(list, get("/?edit=22"))
+
+	buf := renderTemplate(templ, model)
+
+	assertWellFormedHTML(t, buf)
+	document := parseHtml(t, buf)
+	selection := document.Find("ul.todo-list li.editing")
+	require.Equal(t, 1, selection.Length())
+	assert.Equal(t, "Foo", strings.TrimSpace(selection.Text()))
 }
 
 func get(target string) *http.Request {
